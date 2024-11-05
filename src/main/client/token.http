@@ -1,0 +1,33 @@
+
+### POST to get authorization code
+#
+###
+
+### POST request to get refresh token
+POST https://app.fakturoid.cz/api/v3/oauth/token
+User-Agent: {user-agent}
+Content-Type: application/json
+Accept: application/json
+Authorization: {basic-http-auth}
+
+{
+  "grant_type": "authorization_code",
+  "code": "replace with code",
+  "redirect_uri": "http://www.localhost:8080/"
+}
+
+###
+
+### POST request to get access (Bearer) token
+POST https://app.fakturoid.cz/api/v3/oauth/token
+User-Agent:  {user-agent}
+Content-Type: application/json
+Accept: application/json
+Authorization: {basic-http-auth}
+
+{
+  "grant_type": "refresh_token",
+  "refresh_token": "replace with refresh token"
+}
+
+###
