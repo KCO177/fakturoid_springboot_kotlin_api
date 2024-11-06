@@ -1,15 +1,15 @@
 package com.kotlinspring.fakturoid_api.demo
 
+import com.kotlinspring.fakturoid_api.domain.CustomIdDomain
+import com.kotlinspring.fakturoid_api.domain.DjDbOutput
 import com.kotlinspring.fakturoid_api.domain.InvoiceDomain
 import java.time.LocalDate
-
-
 
 
 class DemoUtils {
 
     fun createDemoInvoice(
-        customId: String = "2345",
+        customId: CustomIdDomain= CustomIdDomain("2024-11-001"),
         subjectId: Int = 23377698,
         due: Int = 14,
         issuedOn: String = LocalDate.now().toString(),
@@ -47,8 +47,45 @@ class DemoUtils {
     }
 
     fun dbOutput(): List<DjDbOutput> {
-
-
+        return listOf(
+            DjDbOutput(
+                companyRegistrationNumber = "123456789",
+                companyContactEmail = "some@email.com",
+                companyLawName = "DreamJobs s.r.o.",
+                cvQuantityMonth = 10,
+                cvQuantityYear = 10,
+                datesOfCvUpload = listOf(
+                    LocalDate.now(),
+                    LocalDate.now(),
+                    LocalDate.now(),
+                    LocalDate.now(),
+                    LocalDate.now(),
+                    LocalDate.now(),
+                    LocalDate.now(),
+                    LocalDate.now(),
+                    LocalDate.now(),
+                    LocalDate.now(),
+                )
+            ),
+            DjDbOutput(
+                companyRegistrationNumber = "234567890",
+                companyContactEmail = "some@email.com",
+                companyLawName = "DreamJobs2 s.r.o.",
+                cvQuantityMonth = 1,
+                cvQuantityYear = 9,
+                datesOfCvUpload = listOf(
+                    LocalDate.now(),
+                    LocalDate.now(),
+                    LocalDate.now(),
+                    LocalDate.now(),
+                    LocalDate.now(),
+                    LocalDate.now(),
+                    LocalDate.now(),
+                    LocalDate.now(),
+                    LocalDate.now(),
+                    LocalDate.now(),
+                )
+            )
+        )
     }
-}
 }

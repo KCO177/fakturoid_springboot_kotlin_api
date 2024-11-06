@@ -1,7 +1,6 @@
 package com.kotlinspring.fakturoid_api.domain
 
 class TenantDomain(
-val companyName: String,
 val companyRegistrationNumber: String,
 val companyContactEmail: String,
 val companyLawName: String
