@@ -8,14 +8,12 @@ import org.springframework.http.MediaType
 
 class AuthorizationController {
 
- //val authorizationClient = "AUTHORIZATION_CLIENT Basic NjYzZTAwNGUwNGVlMTA5MjFiMWY3NGMwYWI0NzM4MDIyMDAxYTA4Mjo5MDE3YzBmY2VlYjIyZGRlMTI4ODQ0ZDE3NGZiMjZjOTUxN2ZhNWNm"
-
     val refreshToken : String = System.getenv("REFRESH_TOKEN")
     val authorizationClient : String = System.getenv("AUTHORIZATION_CLIENT")
     val userAgent : String = System.getenv("USER_AGENT")
 
 
-    fun sendRefreshToken(refreshToken: String, authorizationClient: String): String? {
+    fun getBearerToken(refreshToken: String, authorizationClient: String): String? {
         val url = "https://app.fakturoid.cz/api/v3/oauth/token"
 
         val webClient = WebClient.builder()

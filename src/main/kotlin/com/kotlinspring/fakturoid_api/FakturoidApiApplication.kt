@@ -10,6 +10,6 @@ class FakturoidApiApplication
 fun main(args: Array<String>) {
     runApplication<FakturoidApiApplication>(*args)
 
-    val bearerToken = AuthorizationController().sendRefreshToken(AuthorizationController().refreshToken, AuthorizationController().authorizationClient)
+    val bearerToken = AuthorizationController().getBearerToken(AuthorizationController().refreshToken, AuthorizationController().authorizationClient)
     println(bearerToken)
 }
