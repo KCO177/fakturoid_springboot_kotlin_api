@@ -4,7 +4,7 @@ import com.kotlinspring.fakturoid_api.demo.LinesDomain
 import com.kotlinspring.fakturoid_api.service.SubjectService
 import java.time.LocalDate
 
-class InvoiceDomain(
+open class InvoiceDomain(
     val id: Int? = null,
     val customId: CustomIdDomain,
     val subject_id: Int,
@@ -33,7 +33,7 @@ class InvoiceDomain(
                     InvoiceDomain(
                         id = null,
                         customId = customId,
-                        subject_id = SubjectDomain.getSubjectId(invoice.tenant, bearerToken, subjectService),
+                        subject_id = SubjectDomain.getSubjectId(invoice.tenant, subjectService, bearerToken),
                         due = null,
                         issued_on = null,
                         taxable_fulfillment_due = null,

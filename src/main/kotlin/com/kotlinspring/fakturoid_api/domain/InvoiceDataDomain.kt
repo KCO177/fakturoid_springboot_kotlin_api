@@ -6,7 +6,9 @@ class InvoiceDataDomain (
     val dateFrom: LocalDate,
     val dateTo: LocalDate,
     val tenant: TenantDomain,
-    val cvUploadedNumber : Int,
+    val cvUploadedNumberMonth : Int,
+    val cvUploadedNumberYear : Int,
+    val datesOfCvUploads: List<LocalDate>
 ) {
     companion object {
         fun getInvoiceData(dbOutput : List<DjDbOutput> ): List<InvoiceDataDomain> {
@@ -15,12 +17,13 @@ class InvoiceDataDomain (
                     dateFrom = LocalDate.now(),
                     dateTo = LocalDate.now(),
                     tenant = TenantDomain(
-                        companyName = tenant.companyName,
                         companyRegistrationNumber = tenant.companyRegistrationNumber,
                         companyContactEmail = tenant.companyContactEmail,
                         companyLawName = tenant.companyLawName
                     ),
-                    cvUploadedNumber = tenant.cvQuantity
+                    cvUploadedNumberMonth = tenant.cvQuantityMonth,
+                    cvUploadedNumberYear = tenant.cvQuantityYear,
+                    datesOfCvUploads = tenant.datesOfCvUpload
                 )
             }
         }

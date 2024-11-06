@@ -2,16 +2,17 @@ package com.kotlinspring.fakturoid_api.service
 
 import com.kotlinspring.fakturoid_api.controller.SubjectController
 import com.kotlinspring.fakturoid_api.domain.SubjectDomain
+import org.springframework.stereotype.Service
 
-
+@Service
 class SubjectService (
     private val subjectController: SubjectController
 )
 
 {
-    fun findOrCreateTenant(bearerToken: String, subject: SubjectDomain) : Int {
+    fun findOrCreateTenant(bearerToken: String, subject: SubjectDomain) : SubjectDomain {
         val tenants : List<SubjectDomain> =  subjectController.getSubject(bearerToken)
-        val tenantId = tenants.filter { tenant -> subject.name == tenant.name }.mapNotNull { it.id }.firstOrNull()
+        val tenantId = tenants.filter { tenant -> subject.name == tenant.name }.map { it }.firstOrNull()
         if (tenantId != null) {
             return tenantId
         } else {

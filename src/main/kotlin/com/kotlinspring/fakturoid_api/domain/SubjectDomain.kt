@@ -18,6 +18,7 @@ class SubjectDomain (
     val variable_symbol: String? //Fixed variable symbol (used for all invoices for this client instead of invoice number)
 ) {
     companion object {
+
         fun mapTenantToSubjectDomain(tenant: TenantDomain): SubjectDomain {
 
             return SubjectDomain(
@@ -36,7 +37,7 @@ class SubjectDomain (
 
         fun getSubjectId(tenant: TenantDomain, subjectService: SubjectService, bearerToken: String): Int {
             val subject = mapTenantToSubjectDomain(tenant)
-            val subjectId = subjectService.findOrCreateTenant(bearerToken, subject)
+            val subjectId = requireNotNull( subjectService.findOrCreateTenant(bearerToken, subject).id) { "Subject ${subject.id} ${subject.CIN} could not be created" }
             return subjectId
         }
     }

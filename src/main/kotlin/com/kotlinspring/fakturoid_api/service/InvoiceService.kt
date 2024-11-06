@@ -3,10 +3,10 @@ package com.kotlinspring.fakturoid_api.service
 import com.kotlinspring.fakturoid_api.controller.AuthorizationController
 import com.kotlinspring.fakturoid_api.controller.InvoiceController
 import com.kotlinspring.fakturoid_api.demo.DemoUtils
-import com.kotlinspring.fakturoid_api.domain.CustomIdDomain
-import com.kotlinspring.fakturoid_api.domain.InvoiceDataDomain
-import com.kotlinspring.fakturoid_api.domain.InvoiceDomain
+import com.kotlinspring.fakturoid_api.domain.*
+import org.springframework.stereotype.Service
 
+@Service
 class InvoiceService (
     private val subjectService: SubjectService,
     private val invoiceController: InvoiceController,
@@ -16,28 +16,43 @@ class InvoiceService (
 {
     private val bearerToken = requireNotNull( authorizationController.getBearerToken(AuthorizationController().refreshToken, AuthorizationController().authorizationClient)) { "Bearer token for fakturoid could not be created" }
 
-    //receive data from payload
-    val invoicesPayload = requireNotNull( InvoiceController().getInvoices(bearerToken) ) { "Invoices from fakturoid could not be fetched" }
-
-    //CREDITS:
-    //TODO filter invoice payload by subjectId -> filter if the invoice containt credit amount
-    //TODO get last credit amount
-
-    //CVs LIMIT FOR INVOICING:
-
     //prepare data from db
-    val invoiceData = InvoiceDataDomain.getInvoiceData(demoUtils.dbOutput())
+    final val invoiceDataRaw : List<InvoiceDataDomain> = InvoiceDataDomain.getInvoiceData(demoUtils.dbOutput())
+    final val invoiceData = invoiceDataRaw.filter { it.cvUploadedNumberMonth > 0 }
+
+    //filter subject by tenant
+    final val tenantRegNumbers : List<TenantDomain> = invoiceData.map { it.tenant }
+    final val subjects : List<SubjectDomain> = tenantRegNumbers.map{ tenant -> subjectService.findOrCreateTenant(bearerToken, SubjectDomain.mapTenantToSubjectDomain(tenant))}
+
+    //get all invoices from last year
+    final val invoicesPayload = requireNotNull( invoiceController.getInvoices(bearerToken)) { "Invoices could not be fetched from fakturoid" }
 
     //get customId
     val newCustomId = CustomIdDomain.getCustomId(invoicesPayload)
 
-    //create payload to sent
-    val invoices = InvoiceDomain.getInvoices(invoiceData, newCustomId, bearerToken, subjectService)
-    //TODO if invoice not exists for the date range(month) -> create invoice / else update
-    val createdInvoices = invoiceController.createInvoice(bearerToken, invoices)
+    //filter if credit exists
+    final val creditInvoices : List<InvoiceDomain> = invoicesPayload.filter { invoice ->
+        invoice.lines.any { line -> line.name.uppercase().contains("SAVER") }
+    }
 
-
-
-
-
+    fun manageCredits() {
+            val creditInvoices = CreditInvoiceHandlerDomain(subjects, creditInvoices, invoiceData)
+            creditInvoices.restCreditNumber.forEach { creditSubject ->
+                if (creditSubject.fiftypercentReached) {
+                    //TODO CreditInvoiceDomain.sendInvoiceDoNotPay()
+                    //TODO put invoice do not pay to invoice outcoming payload
+                }
+                if (creditSubject.seventyfivepercentReached) {
+                    //TODO CreditInvoiceDomain.sendInvoiceDoNotPay()
+                    //TODO send invoice do not pay to invoice outcoming payload
+                }
+            }
+    }
 }
+
+
+
+
+
+
+    //create payload to sent
