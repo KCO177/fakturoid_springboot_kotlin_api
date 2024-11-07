@@ -1,4 +1,4 @@
-*API for connection Fakturoid API V3 invoicing application.*
+**API for connection Fakturoid API V3 invoicing application.**
 
 API is seccured with OAuth 2.0 
 for reaching refresh token, follow instructions in fakturoid api v3 documentation with use http client Token
