@@ -8,6 +8,6 @@ The code pretend secure variables refresh_token, user_agent, client_authorizatio
 Api pretend fetch tenant financial claims from the db into adapter ClaimDataDomain
 
 Api has two invoicing way 
-  - credits
-  - at least 10 issues to prevent low invoicing costs
+  - credits - look in fetched invoice for first invoice with key word "saver" in string, calculate rest of credits, send proforma "do not pay" invoice when 50%, 75% and 100% credits consumed.
+  - at least 10 issues to prevent low invoicing costs. If the value not reached, send cumulative inovice each three months. 
  
