@@ -2,9 +2,7 @@ package com.kotlinspring.fakturoid_api.service
 
 import com.kotlinspring.fakturoid_api.controller.SubjectController
 import com.kotlinspring.fakturoid_api.domain.SubjectDomain
-import org.springframework.stereotype.Service
 
-@Service
 class SubjectService (
     private val subjectController: SubjectController
 )

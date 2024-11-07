@@ -7,8 +7,11 @@ import java.time.LocalDate
 open class InvoiceDomain(
     val id: Int? = null,
     val customId: CustomIdDomain,
+    val document_type: String = "invoice",
     val subject_id: Int,
+    val status : String = "open",
     val due: Int? = 14,
+    val note: String? = "Thank you for your business.",
     val issued_on: String? = LocalDate.now().toString(),
     val taxable_fulfillment_due: String? = LocalDate.now().toString(),
     val lines: List<LinesDomain>,
@@ -20,7 +23,7 @@ open class InvoiceDomain(
     companion object {
 
         fun getInvoices(
-            invoiceData: List<InvoiceDataDomain>,
+            invoiceData: List<ClaimDataDomain>,
             newCustomIdDomain: CustomIdDomain,
             bearerToken: String,
             subjectService: SubjectService
@@ -46,6 +49,5 @@ open class InvoiceDomain(
             }
             return invoices
         }
-
     }
 }

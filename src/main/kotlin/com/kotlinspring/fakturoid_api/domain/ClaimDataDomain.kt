@@ -2,7 +2,7 @@ package com.kotlinspring.fakturoid_api.domain
 
 import java.time.LocalDate
 
-class InvoiceDataDomain (
+class ClaimDataDomain (
     val dateFrom: LocalDate,
     val dateTo: LocalDate,
     val tenant: TenantDomain,
@@ -11,9 +11,9 @@ class InvoiceDataDomain (
     val datesOfCvUploads: List<LocalDate>
 ) {
     companion object {
-        fun getInvoiceData(dbOutput : List<DjDbOutput> ): List<InvoiceDataDomain> {
+        fun getInvoiceData(dbOutput : List<DjDbOutput> ): List<ClaimDataDomain> {
             return dbOutput.map { tenant ->
-                InvoiceDataDomain(
+                ClaimDataDomain(
                     dateFrom = LocalDate.now(),
                     dateTo = LocalDate.now(),
                     tenant = TenantDomain(

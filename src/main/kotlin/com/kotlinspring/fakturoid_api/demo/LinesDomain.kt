@@ -1,8 +1,7 @@
 package com.kotlinspring.fakturoid_api.demo
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.kotlinspring.fakturoid_api.domain.InvoiceDataDomain
-import com.kotlinspring.fakturoid_api.domain.InvoiceDomain
+import com.kotlinspring.fakturoid_api.domain.ClaimDataDomain
 
 class LinesDomain(
     val name : String,
@@ -21,11 +20,11 @@ class LinesDomain(
 ) {
     companion object {
 
-        internal fun createLines(invoice: InvoiceDataDomain): List<LinesDomain> {
+        internal fun createLines(invoice: ClaimDataDomain): List<LinesDomain> {
             return listOf(
                 LinesDomain(
                     name = "CVs upload DreamJobs service",
-                    quantity = invoice.cvUploadedNumber.toDouble(),
+                    quantity = 0.0,//invoice.cvUploadedNumber.toDouble(),
                     unitName = "CV",
                     unitPrice = 7.0,
                     vatRate = 21.0
