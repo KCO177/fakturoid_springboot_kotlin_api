@@ -33,7 +33,7 @@ class SubjectController {
         return objectMapper.readValue(response, objectMapper.typeFactory.constructCollectionType(List::class.java, SubjectDomain::class.java))
     }
 
-    fun createSubject(bearerToken: String, subjectDomain: SubjectDomain): Int? {
+    fun createSubject(bearerToken: String, subjectDomain: SubjectDomain): SubjectDomain? {
         val url = "https://app.fakturoid.cz/api/v3/accounts/${slug}/subjects.json"
 
         val webClient = WebClient.builder()
@@ -50,6 +50,6 @@ class SubjectController {
             .bodyToMono<String>()
             .block()
 
-        return response?.let { jacksonObjectMapper().readValue(it, SubjectDomain::class.java).id }
+        return response?.let { jacksonObjectMapper().readValue(it, SubjectDomain::class.java) }
     }
 }

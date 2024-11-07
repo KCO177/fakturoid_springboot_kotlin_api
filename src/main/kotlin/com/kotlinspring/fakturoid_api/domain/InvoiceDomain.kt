@@ -4,11 +4,14 @@ import com.kotlinspring.fakturoid_api.demo.LinesDomain
 import com.kotlinspring.fakturoid_api.service.SubjectService
 import java.time.LocalDate
 
-class InvoiceDomain(
+open class InvoiceDomain(
     val id: Int? = null,
     val customId: CustomIdDomain,
+    val document_type: String = "invoice",
     val subject_id: Int,
+    val status : String = "open",
     val due: Int? = 14,
+    val note: String? = "Thank you for your business.",
     val issued_on: String? = LocalDate.now().toString(),
     val taxable_fulfillment_due: String? = LocalDate.now().toString(),
     val lines: List<LinesDomain>,
@@ -20,7 +23,7 @@ class InvoiceDomain(
     companion object {
 
         fun getInvoices(
-            invoiceData: List<InvoiceDataDomain>,
+            invoiceData: List<ClaimDataDomain>,
             newCustomIdDomain: CustomIdDomain,
             bearerToken: String,
             subjectService: SubjectService
@@ -33,7 +36,7 @@ class InvoiceDomain(
                     InvoiceDomain(
                         id = null,
                         customId = customId,
-                        subject_id = SubjectDomain.getSubjectId(invoice.tenant, bearerToken, subjectService),
+                        subject_id = SubjectDomain.getSubjectId(invoice.tenant, subjectService, bearerToken),
                         due = null,
                         issued_on = null,
                         taxable_fulfillment_due = null,
@@ -46,6 +49,5 @@ class InvoiceDomain(
             }
             return invoices
         }
-
     }
 }
