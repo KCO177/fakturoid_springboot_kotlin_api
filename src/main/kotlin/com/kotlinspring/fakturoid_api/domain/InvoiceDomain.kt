@@ -6,10 +6,10 @@ import java.time.LocalDate
 
 open class InvoiceDomain(
     val id: Int? = null,
-    val customId: CustomIdDomain,
-    val document_type: String = "invoice",
+    val customId: CustomIdDomain?,
+    val document_type: String? = "invoice",
     val subject_id: Int,
-    val status : String = "open",
+    val status : String?,
     val due: Int? = 14,
     val note: String? = "Thank you for your business.",
     val issued_on: String? = LocalDate.now().toString(),
@@ -36,14 +36,17 @@ open class InvoiceDomain(
                     InvoiceDomain(
                         id = null,
                         customId = customId,
+                        document_type = null,
                         subject_id = SubjectDomain.getSubjectId(invoice.tenant, subjectService, bearerToken),
+                        status = null,
                         due = null,
+                        note = null,
                         issued_on = null,
                         taxable_fulfillment_due = null,
                         lines = LinesDomain.createLines(invoice),
                         currency = null,
                         totalWOVat = null,
-                        totalWithVat = null
+                        totalWithVat = null,
                     )
                 )
             }

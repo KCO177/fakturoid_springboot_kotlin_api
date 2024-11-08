@@ -11,22 +11,30 @@ class DemoUtils {
 
     fun createDemoInvoice(
         customId: CustomIdDomain= CustomIdDomain("2024-11-001"),
+        document_type: String? = "invoice",
         subjectId: Int = 23377698,
+        status : String? = "open",
         due: Int = 14,
+        note : String? = "Thank you for your business.",
         issuedOn: String = LocalDate.now().toString(),
         taxableFulfillmentDue: String = LocalDate.now().toString(),
         lines: LinesDomain =  createInvoiceLines(),
         currency: String = "EUR",
         ) : InvoiceDomain {
         return InvoiceDomain(
-        id = null,
-        customId = customId,
-        subject_id = subjectId,
-        due = due,
-        issued_on = issuedOn,
-        taxable_fulfillment_due = taxableFulfillmentDue,
-        lines = listOf(lines),
-        currency = currency
+            id = null,
+            customId = customId,
+            subject_id = subjectId,
+            due = due,
+            issued_on = issuedOn,
+            taxable_fulfillment_due = taxableFulfillmentDue,
+            lines = listOf(lines),
+            currency = currency,
+            document_type = document_type,
+            status = status,
+            note = note,
+            totalWOVat = null,
+            totalWithVat = null
         )
 
     }

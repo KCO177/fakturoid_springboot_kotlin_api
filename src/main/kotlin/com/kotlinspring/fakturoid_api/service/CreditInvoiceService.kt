@@ -4,12 +4,7 @@ import com.kotlinspring.fakturoid_api.demo.LinesDomain
 import com.kotlinspring.fakturoid_api.domain.*
 import java.time.LocalDate
 
-class CreditInvoiceService (
-    subjects : List<SubjectDomain>,
-    creditInvoices : List<InvoiceDomain>,
-    invoiceData : List<ClaimDataDomain>
-
-) {
+class CreditInvoiceService{
 
     fun restCreditNumber(creditInvoices: List<InvoiceDomain>, subjects: List<SubjectDomain>, invoiceData: List<ClaimDataDomain> ): List<CreditSubjectDomain> {
         val matchedCreditInvoices: List<InvoiceDomain> = creditInvoices.filter { creditInvoice ->
@@ -57,9 +52,10 @@ class CreditInvoiceService (
 
         InvoiceDomain(
             id = null,
-            customId = CustomIdDomain("2024-11-001"),
+            customId = null,
             document_type = "proforma",
             subject_id = creditSubject.subjectId,
+            status = "paid",
             due = 14,
             note = "DO NOT PAY. PAID FROM YOUR CREDITS.",
             issued_on = LocalDate.now().toString(),
