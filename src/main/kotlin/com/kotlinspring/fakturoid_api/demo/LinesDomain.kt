@@ -9,13 +9,13 @@ class LinesDomain(
     @JsonProperty("unit_name")
     val unitName : String,
     @JsonProperty("unit_price")
-    val unitPrice : Double,
+    val unitPrice : Double? = 7.0,
     @JsonProperty("vat_rate")
-    val vatRate : Double,
+    val vatRate : Double? = 21.0,
     @JsonProperty("total_price_without_vat")
-    val totalWOVat : Double = unitPrice * quantity,
+    val totalWOVat : Double = unitPrice!! * quantity,
     @JsonProperty("total_price_with_vat")
-    val totalWithVat : Double = unitPrice * vatRate / 100
+    val totalWithVat : Double = unitPrice!! * vatRate!! / 100
 
 ) {
     companion object {

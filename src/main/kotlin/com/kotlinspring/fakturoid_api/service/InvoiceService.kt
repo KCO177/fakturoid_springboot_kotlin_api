@@ -14,56 +14,55 @@ class InvoiceService(
     private val demoUtils: DemoUtils,
     private val creditInvoiceService: CreditInvoiceService
 ) {
-    private val bearerToken = requireNotNull(
-        authorizationController.getBearerToken(
-            AuthorizationController().refreshToken,
-            AuthorizationController().authorizationClient
-        )
-    ) { "Bearer token for fakturoid could not be created" }
+    private val bearerToken = requireNotNull(authorizationController.getBearerToken(AuthorizationController().refreshToken, AuthorizationController().authorizationClient)) { "Bearer token for fakturoid could not be created" }
 
-    //prepare data from db
     val finClaimDataRaw: List<ClaimDataDomain> = ClaimDataDomain.getInvoiceData(demoUtils.dbOutput())
     val finClaim = finClaimDataRaw.filter { it.cvUploadedNumberMonth > 0 }
-
-    //filter subject by tenant
     val tenantRegNumbers: List<TenantDomain> = finClaim.map { it.tenant }
     val subjects: List<SubjectDomain> = tenantRegNumbers.map { tenant ->
         subjectService.findOrCreateTenant(
-            bearerToken,
-            SubjectDomain.mapTenantToSubjectDomain(tenant)
+            bearerToken, SubjectDomain.mapTenantToSubjectDomain(tenant)
         )
     }
 
-    //get all invoices from last year
-    val invoicesPayload =
-        requireNotNull(invoiceController.getInvoices(bearerToken)) { "Invoices could not be fetched from fakturoid" }
+    val invoicesPayload = requireNotNull(invoiceController.getInvoices(bearerToken)) { "Invoices could not be fetched from fakturoid" }
 
-
-    //filter if credit exists
-    val creditInvoices: List<InvoiceDomain> = invoicesPayload.filter { invoice ->
-        invoice.lines.any { line -> line.name.uppercase().contains("SAVER") }
+    fun createInvoices() {
+        val bufferedInvoices: List<InvoiceDomain> = getBufferedInvoices(finClaim, subjects)
+        val creditInvoices: List<InvoiceDomain>? = createProformaCreditInvoices()
+        val invoices = mutableListOf<InvoiceDomain>().apply {
+            if (bufferedInvoices.isNotEmpty()) addAll(bufferedInvoices)
+            creditInvoices?.let { if (it.isNotEmpty()) addAll(it) }
+        }
+        if (invoices.isNotEmpty()) { invoiceController.createInvoices(bearerToken, invoices) }
     }
 
-    fun createProformaCreditInovices(): List<InvoiceDomain> {
-        val creditSubjects = creditInvoiceService.restCreditNumber(creditInvoices, subjects, finClaim)
-        val proformaInvoices: List<InvoiceDomain> = creditInvoiceService.manageCreditInvoices(creditSubjects)
-        val proformaInvoicesPayload = invoicesPayload.filter { it.document_type == "proforma" }
+    private fun createProformaCreditInvoices(): List<InvoiceDomain>? {
+        val creditInvoices: List<InvoiceDomain> =
+            invoicesPayload.filter { invoice -> invoice.lines.any { line -> line.name.uppercase().contains("SAVER") } }
+        if (creditInvoices.isEmpty()) {
+            return null
+        } else {
+            val creditSubjects = creditInvoiceService.restCreditNumber(creditInvoices, subjects, finClaim)
+            val proformaInvoices: List<InvoiceDomain> = creditInvoiceService.manageCreditInvoices(creditSubjects)
+            val proformaInvoicesPayload = invoicesPayload.filter { it.documentType == "proforma" }
 
-        return proformaInvoices.filterNot { proformaInvoice ->
-            proformaInvoicesPayload.any { payload ->
-                payload.subject_id == proformaInvoice.subject_id &&
-                        payload.lines.any { line -> proformaInvoice.lines.any { it.name == line.name } }
+            return proformaInvoices.filterNot { proformaInvoice ->
+                proformaInvoicesPayload.any { payload ->
+                    payload.subjectId == proformaInvoice.subjectId &&
+                            payload.lines.any { line -> proformaInvoice.lines.any { it.name == line.name } }
+                }
             }
         }
     }
 
-    fun bufferedInvoices(finClaim: List<ClaimDataDomain>, subjects: List<SubjectDomain>): List<InvoiceDomain> {
+    private fun getBufferedInvoices(finClaim: List<ClaimDataDomain>, subjects: List<SubjectDomain>): List<InvoiceDomain> {
         val claimBuffer = finClaim.filter { it.cvUploadedNumberMonth < 10 }
         val bufferedInvoice =
             claimBuffer.map { claim ->
                 if (CumulativeCvsDomain(claim.datesOfCvUploads).finalUploads > 0) {
 
-                    val lines = CumulativeCvsDomain(claim.datesOfCvUploads).lastAdjusted.map { it ->
+                    val lines = CumulativeCvsDomain(claim.datesOfCvUploads).lastAdjusted.map {
                         LinesDomain(
                             name = "Buffered CV uploads ${it.key}",
                             quantity = it.value.toDouble(),
@@ -76,17 +75,15 @@ class InvoiceService(
                     val subjectId: Int =
                         requireNotNull(subjects.find { it.CIN == claim.tenant.companyRegistrationNumber }?.id) { "Subject ${claim.tenant.companyRegistrationNumber} could not be found" }
 
-
                     InvoiceDomain(
                         id = null,
                         customId = null,
-                        document_type = "proforma",
-                        subject_id = subjectId,
+                        documentType = "proforma",
+                        subjectId = subjectId,
                         status = "open",
                         due = 14,
-                        note = null,
-                        issued_on = LocalDate.now().toString(),
-                        taxable_fulfillment_due = LocalDate.now().toString(),
+                        issuedOn = LocalDate.now().toString(),
+                        taxableFulfillmentDue = LocalDate.now().toString(),
                         lines = lines,
                         currency = "EUR"
                     )
@@ -97,3 +94,4 @@ class InvoiceService(
         return bufferedInvoice.filterNotNull()
     }
 }
+

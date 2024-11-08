@@ -8,10 +8,10 @@ class CreditInvoiceService{
 
     fun restCreditNumber(creditInvoices: List<InvoiceDomain>, subjects: List<SubjectDomain>, invoiceData: List<ClaimDataDomain> ): List<CreditSubjectDomain> {
         val matchedCreditInvoices: List<InvoiceDomain> = creditInvoices.filter { creditInvoice ->
-            creditInvoice.subject_id in subjects.map { it.id!! }
+            creditInvoice.subjectId in subjects.map { it.id!! }
         }
         val firstDates: List<CreditSubject> = matchedCreditInvoices.map { invoice ->
-            CreditSubject(invoice.subject_id, LocalDate.parse(invoice.issued_on!!),
+            CreditSubject(invoice.subjectId, LocalDate.parse(invoice.issuedOn!!),
                 invoice.lines.filter { it.name.uppercase().contains("SAVER") }.sumOf { it.quantity.toInt() })
         }
         val creditSubjects = firstDates.map { creditSubject ->
@@ -53,13 +53,13 @@ class CreditInvoiceService{
         InvoiceDomain(
             id = null,
             customId = null,
-            document_type = "proforma",
-            subject_id = creditSubject.subjectId,
+            documentType = "proforma",
+            subjectId = creditSubject.subjectId,
             status = "paid",
             due = 14,
             note = "DO NOT PAY. PAID FROM YOUR CREDITS.",
-            issued_on = LocalDate.now().toString(),
-            taxable_fulfillment_due = LocalDate.now().toString(),
+            issuedOn = LocalDate.now().toString(),
+            taxableFulfillmentDue = LocalDate.now().toString(),
             lines = listOf( LinesDomain (
                 name = lineName,
                 quantity = (creditSubject.totalCreditNumber - creditSubject.restOfCreditNumber).toDouble(),

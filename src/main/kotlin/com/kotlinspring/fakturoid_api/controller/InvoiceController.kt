@@ -67,7 +67,7 @@ class InvoiceController {
     }
 
 
-    fun createInvoice(bearerToken: String, invoiceDomains: List<InvoiceDomain>) {
+    fun createInvoices(bearerToken: String, invoiceDomains: List<InvoiceDomain>) {
         val url = "https://app.fakturoid.cz/api/v3/accounts/${slug}/invoices.json"
 
         WebClient.builder()
