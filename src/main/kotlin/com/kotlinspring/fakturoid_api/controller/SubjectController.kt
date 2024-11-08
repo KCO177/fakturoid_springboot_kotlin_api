@@ -1,7 +1,6 @@
 package com.kotlinspring.fakturoid_api.controller
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.kotlinspring.fakturoid_api.domain.BankAccountDomain
 import com.kotlinspring.fakturoid_api.domain.SubjectDomain
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
