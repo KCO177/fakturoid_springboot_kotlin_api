@@ -1,6 +1,7 @@
 package com.kotlinspring.fakturoid_api.domain
 
 import java.time.LocalDate
+import java.time.Month
 
 class CumulativeCvsDomain(datesOfCvUploads: List<LocalDate>) {
 
@@ -16,12 +17,20 @@ class CumulativeCvsDomain(datesOfCvUploads: List<LocalDate>) {
         .keys
         .maxOrNull()
 
-    //TODO if first reached month is null, then calculate from the beginning of the year until the end of the month for each cv limit,  setup the month when reached cv limit and continue calculate from the next month
-
     val adjustedUploads =  if (firstReachedMonth != null) {
         calculateLimitisIfReached()
-    } else calculateLimits(cvLimit)
+    } else { calculateLimits(cvLimit) }
 
+     val lastAdjusted = datesOfCvUploads.takeLast(adjustedUploads).groupBy { it.month }.mapValues { it.value.size }
+
+     val finalUploads = if (adjustedUploads >= cvLimit) {
+        adjustedUploads
+    } else if (
+        LocalDate.now().monthValue == 12) {
+        adjustedUploads
+    } else {
+        0
+    }
 
     fun calculateLimitisIfReached() : Int {
         val cumulativeUploadsUntilReachedMonth =
@@ -36,29 +45,20 @@ class CumulativeCvsDomain(datesOfCvUploads: List<LocalDate>) {
         return adjustedUploads
     }
 
-     val lastAdjusted = datesOfCvUploads.takeLast(adjustedUploads).groupBy { it.month }.mapValues { it.value.size }
-
-     val finalUploads = if (adjustedUploads >= cvLimit) {
-        cvLimit
-    } else if (
-        LocalDate.now().monthValue == 12) {
-        adjustedUploads
-    } else {
-        0
-    }
 
     fun calculateLimits(limit: Int): Int {
         var sum = 0
+        var i = 0
+        val monthlyUploadsSorted = cvUploadsPerMonth.toSortedMap(compareBy { it })
+        for ((index, value) in monthlyUploadsSorted.values.withIndex()) {
 
-        for ((index, value) in cvUploadsPerMonth.values.withIndex()) {
             sum += value
-            if (sum >= limit) {
-                sum = 0 // Reset sum to continue from the next month
+            if (sum >= limit && monthlyUploadsSorted.keys.elementAt(index).monthValue != LocalDate.now().monthValue) {
+                sum = 0
+                }
             }
-        }
 
         return sum
     }
-
 
 }
