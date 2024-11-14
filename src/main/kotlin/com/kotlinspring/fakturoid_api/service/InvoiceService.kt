@@ -3,7 +3,7 @@ package com.kotlinspring.fakturoid_api.service
 import com.kotlinspring.fakturoid_api.controller.AuthorizationController
 import com.kotlinspring.fakturoid_api.controller.InvoiceController
 import com.kotlinspring.fakturoid_api.demo.DemoUtils
-import com.kotlinspring.fakturoid_api.demo.LinesDomain
+import com.kotlinspring.fakturoid_api.domain.LinesDomain
 import com.kotlinspring.fakturoid_api.domain.*
 import java.time.LocalDate
 

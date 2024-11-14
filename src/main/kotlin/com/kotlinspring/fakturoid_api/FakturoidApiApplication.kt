@@ -1,6 +1,7 @@
 package com.kotlinspring.fakturoid_api
 
 import com.kotlinspring.fakturoid_api.controller.AuthorizationController
+import com.kotlinspring.fakturoid_api.service.InvoiceService
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
@@ -10,6 +11,7 @@ class FakturoidApiApplication
 fun main(args: Array<String>) {
     runApplication<FakturoidApiApplication>(*args)
 
-    val bearerToken = AuthorizationController().getBearerToken(AuthorizationController().refreshToken, AuthorizationController().authorizationClient)
-    println(bearerToken)
+    //val bearerToken = AuthorizationController().getBearerToken(AuthorizationController().refreshToken, AuthorizationController().authorizationClient)
+    //println(bearerToken)
+    //val invoiceService = InvoiceService()
 }

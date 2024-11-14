@@ -3,6 +3,7 @@ package com.kotlinspring.fakturoid_api.demo
 import com.kotlinspring.fakturoid_api.domain.CustomIdDomain
 import com.kotlinspring.fakturoid_api.domain.DjDbOutput
 import com.kotlinspring.fakturoid_api.domain.InvoiceDomain
+import com.kotlinspring.fakturoid_api.domain.LinesDomain
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 

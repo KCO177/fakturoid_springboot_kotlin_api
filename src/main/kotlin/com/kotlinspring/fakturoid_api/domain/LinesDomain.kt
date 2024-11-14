@@ -1,7 +1,6 @@
-package com.kotlinspring.fakturoid_api.demo
+package com.kotlinspring.fakturoid_api.domain
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.kotlinspring.fakturoid_api.domain.ClaimDataDomain
 
 class LinesDomain(
     val name : String,

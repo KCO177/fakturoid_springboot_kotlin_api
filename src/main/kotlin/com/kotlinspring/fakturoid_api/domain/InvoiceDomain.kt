@@ -1,7 +1,6 @@
 package com.kotlinspring.fakturoid_api.domain
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.kotlinspring.fakturoid_api.demo.LinesDomain
 import com.kotlinspring.fakturoid_api.service.SubjectService
 import java.time.LocalDate
 
