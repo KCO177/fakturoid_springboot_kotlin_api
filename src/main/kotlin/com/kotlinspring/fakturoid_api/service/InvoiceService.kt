@@ -11,9 +11,11 @@ class InvoiceService(
     private val subjectService: SubjectService,
     private val invoiceController: InvoiceController,
     private val authorizationController: AuthorizationController,
-    private val demoUtils: DemoUtils,
     private val creditInvoiceService: CreditInvoiceService
 ) {
+
+    private val demoUtils: DemoUtils = DemoUtils()
+
     private val bearerToken = requireNotNull(authorizationController.getBearerToken(AuthorizationController().refreshToken, AuthorizationController().authorizationClient)) { "Bearer token for fakturoid could not be created" }
 
     val finClaimDataRaw: List<ClaimDataDomain> = ClaimDataDomain.getInvoiceData(demoUtils.dbOutput())
@@ -43,20 +45,11 @@ class InvoiceService(
         if (creditInvoices.isEmpty()) {
             return null
         } else {
-            val creditSubjects = creditInvoiceService.restCreditNumber(creditInvoices, subjects, finClaim)
-            val proformaInvoices: List<InvoiceDomain> = creditInvoiceService.manageCreditInvoices(creditSubjects)
-            val proformaInvoicesPayload = invoicesPayload.filter { it.documentType == "proforma" }
-
-            return proformaInvoices.filterNot { proformaInvoice ->
-                proformaInvoicesPayload.any { payload ->
-                    payload.subjectId == proformaInvoice.subjectId &&
-                            payload.lines.any { line -> proformaInvoice.lines.any { it.name == line.name } }
-                }
-            }
+            return CreditInvoiceDomain(creditInvoices, subjects, finClaimDataRaw, invoicesPayload).proformaInvoicesFiltered
         }
     }
 
-    private fun getBufferedInvoices(finClaim: List<ClaimDataDomain>, subjects: List<SubjectDomain>): List<InvoiceDomain> {
+    internal fun getBufferedInvoices(finClaim: List<ClaimDataDomain>, subjects: List<SubjectDomain>): List<InvoiceDomain> {
         val claimBuffer = finClaim.filter { it.cvUploadedNumberMonth < 10 }
         val bufferedInvoice =
             claimBuffer.map { claim ->

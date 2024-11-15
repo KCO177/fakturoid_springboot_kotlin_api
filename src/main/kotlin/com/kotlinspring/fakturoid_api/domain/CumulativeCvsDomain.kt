@@ -1,7 +1,6 @@
 package com.kotlinspring.fakturoid_api.domain
 
 import java.time.LocalDate
-import java.time.Month
 
 class CumulativeCvsDomain(datesOfCvUploads: List<LocalDate>) {
 

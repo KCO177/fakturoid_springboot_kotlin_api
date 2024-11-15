@@ -1,10 +1,25 @@
-package com.kotlinspring.fakturoid_api.service
+package com.kotlinspring.fakturoid_api.domain
 
-import com.kotlinspring.fakturoid_api.domain.LinesDomain
-import com.kotlinspring.fakturoid_api.domain.*
 import java.time.LocalDate
 
-class CreditInvoiceService{
+class CreditInvoiceDomain (
+    creditInvoices: List<InvoiceDomain>,
+    subjects: List<SubjectDomain>,
+    finClaim: List<ClaimDataDomain>,
+    invoicesPayload: List<InvoiceDomain>
+)
+{
+    internal val creditSubjects = remainingCreditNumber(creditInvoices, subjects, finClaim)
+    internal val proformaInvoices: List<InvoiceDomain> = manageCreditInvoices(creditSubjects)
+    internal val proformaInvoicesPayload = invoicesPayload.filter { it.documentType == "proforma" }
+
+    val proformaInvoicesFiltered = proformaInvoices.filterNot { proformaInvoice ->
+    proformaInvoicesPayload.any { payload ->
+        payload.subjectId == proformaInvoice.subjectId &&
+                payload.lines.any { line -> proformaInvoice.lines.any { it.name == line.name } }
+        }
+    }
+
 
     fun remainingCreditNumber(creditInvoices: List<InvoiceDomain>, subjects: List<SubjectDomain>, invoiceData: List<ClaimDataDomain> ): List<CreditSubjectDomain> {
         val matchedCreditInvoices: List<InvoiceDomain> = creditInvoices.filter { creditInvoice ->
@@ -41,36 +56,36 @@ class CreditInvoiceService{
     fun manageCreditInvoices(creditSubjects : List<CreditSubjectDomain>) : List<InvoiceDomain> {
         val creditInvoices = creditSubjects.map { creditSubject ->
 
-         val lineName : String
+            val lineName : String
 
-        when {
-            creditSubject.hundredpercentReached -> lineName = "100% of credits applied from total ${creditSubject.totalCreditNumber} credits" //TODO send info message to Dj Sales
-            creditSubject.seventyfivepercentReached -> lineName = "75% of credits applied from total ${creditSubject.totalCreditNumber} credits"
-            creditSubject.fiftypercentReached -> lineName = "50% of credits applied from total ${creditSubject.totalCreditNumber} credits"
-            else -> lineName = "applied credits from total ${creditSubject.totalCreditNumber} credits"
-        }
+            when {
+                creditSubject.hundredpercentReached -> lineName = "100% of credits applied from total ${creditSubject.totalCreditNumber} credits" //TODO send info message to Dj Sales
+                creditSubject.seventyfivepercentReached -> lineName = "75% of credits applied from total ${creditSubject.totalCreditNumber} credits"
+                creditSubject.fiftypercentReached -> lineName = "50% of credits applied from total ${creditSubject.totalCreditNumber} credits"
+                else -> lineName = "applied credits from total ${creditSubject.totalCreditNumber} credits"
+            }
 
-        InvoiceDomain(
-            id = null,
-            customId = null,
-            documentType = "proforma",
-            subjectId = creditSubject.subjectId,
-            status = "paid",
-            due = 14,
-            note = "DO NOT PAY. PAID FROM YOUR CREDITS.",
-            issuedOn = LocalDate.now().toString(),
-            taxableFulfillmentDue = LocalDate.now().toString(),
-            lines = listOf( LinesDomain (
-                name = lineName,
-                quantity = (creditSubject.totalCreditNumber - creditSubject.remainingNumberOfCredits).toDouble(),
-                unitName = "CV upload credit",
-                unitPrice = 0.0,
-                vatRate = 0.0
+            InvoiceDomain(
+                id = null,
+                customId = null,
+                documentType = "proforma",
+                subjectId = creditSubject.subjectId,
+                status = "paid",
+                due = 14,
+                note = "DO NOT PAY. PAID FROM YOUR CREDITS.",
+                issuedOn = LocalDate.now().toString(),
+                taxableFulfillmentDue = LocalDate.now().toString(),
+                lines = listOf( LinesDomain (
+                    name = lineName,
+                    quantity = (creditSubject.totalCreditNumber - creditSubject.remainingNumberOfCredits).toDouble(),
+                    unitName = "CV upload credit",
+                    unitPrice = 0.0,
+                    vatRate = 0.0
+                )
+                ),
+                currency = "EUR"
             )
-            ),
-            currency = "EUR"
-        )
-    }
+        }
         return creditInvoices
     }
 
