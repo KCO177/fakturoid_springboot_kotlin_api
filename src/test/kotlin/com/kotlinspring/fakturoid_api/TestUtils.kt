@@ -37,6 +37,7 @@ class TestUtils {
         customId: CustomIdDomain = CustomIdDomain("2024-11-001"),
         document_type: String? = "invoice",
         subjectId: Int = 23377698,
+        relatedId : Int? = null,
         status : String? = "open",
         due: Int = 14,
         note : String? = "Thank you for your business.",
@@ -50,6 +51,7 @@ class TestUtils {
             customId = customId,
             documentType = document_type,
             subjectId = subjectId,
+            relatedId = relatedId,
             status = status,
             due = due,
             note = note,
@@ -63,14 +65,28 @@ class TestUtils {
 
     }
 
-    fun createCreditDemoInvoice(quantity: Double): List<InvoiceDomain> {
+    fun createCreditMockkInvoice(quantity: Double): List<InvoiceDomain> {
         return listOf( createMockkInvoice(
             id = 123456,
             lines = createCreditInvoiceLines(quantity = quantity),
-            subjectId = 23545971
+            subjectId = 23545971,
+            issuedOn = LocalDate.now().minusMonths(2).toString(),
         ))
 
     }
+
+    fun createValidatedProformaMockkInvoice(quantity: Double): List<InvoiceDomain> {
+            return listOf( createMockkInvoice(
+                id = 123457,
+                document_type = "proforma",
+                relatedId = null,
+                lines = createCreditInvoiceLines(
+                    name = "Validated Saver 500 CVs / applications",
+                    quantity = quantity),
+                subjectId = 23545971
+            ))
+
+        }
 
     fun createCreditSubject(): List<SubjectDomain> {
         return listOf(

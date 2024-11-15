@@ -10,9 +10,10 @@ class CreditInvoiceDomain (
 ) {
 
 
+
+    private val proformaInvoicesPayload: List<InvoiceDomain> = invoicesPayload.filter { it.documentType == "proforma" }
     internal val creditSubjects = remainingCreditNumber(creditInvoices, subjects, finClaim)
     internal val proformaInvoices: List<InvoiceDomain> = manageCreditInvoices(creditSubjects)
-    internal val proformaInvoicesPayload = invoicesPayload.filter { it.documentType == "proforma" }
 
     //TODO decide if necesary to filter - don't remember why it was added
     val proformaInvoicesFiltered = proformaInvoices.filterNot { proformaInvoice ->
@@ -22,7 +23,7 @@ class CreditInvoiceDomain (
         }
     }
 
-    private fun remainingCreditNumber(
+    internal fun remainingCreditNumber(
         creditInvoices: List<InvoiceDomain>,
         subjects: List<SubjectDomain>,
         invoiceData: List<ClaimDataDomain>
@@ -124,7 +125,7 @@ class CreditInvoiceDomain (
         val listOfInoviceToReturn = mutableListOf<InvoiceDomain>()
         listOfInoviceToReturn.add(createCreditInvoice(creditSubject, lineName))
 
-        val validatedProformaInvoice = proformaInvoicesPayload.map {
+        val validatedProformaInvoice = this.proformaInvoicesPayload.map {
             val equalSubjectId = it.subjectId == creditSubject.subjectId
             val containsSaver = it.lines.any { line -> line.name.uppercase().contains("VALIDATED SAVER") }
             val isNotCreditRunOutSaver = creditSubject.saverInvoiceId != it.relatedId
