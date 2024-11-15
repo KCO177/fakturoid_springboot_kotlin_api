@@ -32,7 +32,8 @@ class TestUtils {
     }
 
 
-    fun createDemoInvoice(
+    fun createMockkInvoice(
+        id: Int? = null,
         customId: CustomIdDomain = CustomIdDomain("2024-11-001"),
         document_type: String? = "invoice",
         subjectId: Int = 23377698,
@@ -45,17 +46,17 @@ class TestUtils {
         currency: String = "EUR",
     ) : InvoiceDomain {
         return InvoiceDomain(
-            id = null,
+            id = id,
             customId = customId,
+            documentType = document_type,
             subjectId = subjectId,
+            status = status,
             due = due,
+            note = note,
             issuedOn = issuedOn,
             taxableFulfillmentDue = taxableFulfillmentDue,
             lines = listOf(lines),
             currency = currency,
-            documentType = document_type,
-            status = status,
-            note = note,
             totalWOVat = null,
             totalWithVat = null
         )
@@ -63,7 +64,8 @@ class TestUtils {
     }
 
     fun createCreditDemoInvoice(quantity: Double): List<InvoiceDomain> {
-        return listOf( createDemoInvoice(
+        return listOf( createMockkInvoice(
+            id = 123456,
             lines = createCreditInvoiceLines(quantity = quantity),
             subjectId = 23545971
         ))

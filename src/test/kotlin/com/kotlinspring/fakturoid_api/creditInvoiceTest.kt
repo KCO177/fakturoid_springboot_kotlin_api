@@ -61,6 +61,7 @@ class creditInvoiceDomainTest{
         assertEquals(1, proformaInvoices.size)
         assertEquals("50% of credits applied from total ${creditQuantity.toInt()} credits", proformaInvoices.first().lines.first().name)
         assertEquals("DO NOT PAY. PAID FROM YOUR CREDITS.", proformaInvoices.first().note)
+        assertEquals(123456, proformaInvoices.first().relatedId)
 
     }
 
@@ -83,7 +84,7 @@ class creditInvoiceDomainTest{
         assertEquals(1, proformaInvoices.size)
         assertEquals("75% of credits applied from total ${creditQuantity.toInt()} credits", proformaInvoices.first().lines.first().name)
         assertEquals("DO NOT PAY. PAID FROM YOUR CREDITS.", proformaInvoices.first().note)
-
+        assertEquals(123456, proformaInvoices.first().relatedId)
     }
 
     @Test
@@ -104,6 +105,7 @@ class creditInvoiceDomainTest{
         assertEquals(1, proformaInvoices.size)
         assertEquals("100% of credits applied from total ${creditQuantity.toInt()} credits", proformaInvoices.first().lines.first().name)
         assertEquals("DO NOT PAY. PAID FROM YOUR CREDITS.", proformaInvoices.first().note)
+        assertEquals(123456, proformaInvoices.first().relatedId)
     }
 
     //When more then 100% credits are spent and no new credit remaining are invoiced with standard invoice

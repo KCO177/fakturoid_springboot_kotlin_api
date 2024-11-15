@@ -11,7 +11,6 @@ class InvoiceService(
     private val subjectService: SubjectService,
     private val invoiceController: InvoiceController,
     private val authorizationController: AuthorizationController,
-    private val creditInvoiceService: CreditInvoiceService
 ) {
 
     private val demoUtils: DemoUtils = DemoUtils()

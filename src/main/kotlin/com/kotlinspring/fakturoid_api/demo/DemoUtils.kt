@@ -25,15 +25,15 @@ class DemoUtils {
         return InvoiceDomain(
             id = null,
             customId = customId,
+            documentType = document_type,
             subjectId = subjectId,
+            status = status,
             due = due,
+            note = note,
             issuedOn = issuedOn,
             taxableFulfillmentDue = taxableFulfillmentDue,
             lines = listOf(lines),
             currency = currency,
-            documentType = document_type,
-            status = status,
-            note = note,
             totalWOVat = null,
             totalWithVat = null
         )

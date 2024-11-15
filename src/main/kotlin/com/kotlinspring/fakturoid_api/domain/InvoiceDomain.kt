@@ -9,6 +9,8 @@ open class InvoiceDomain(
     val customId: CustomIdDomain?,
     @JsonProperty("document_type")
     val documentType: String? = "invoice",
+    @JsonProperty("related_id")
+    val relatedId : Int? = null,
     @JsonProperty("subject_id")
     val subjectId: Int,
     val status : String?,
@@ -38,6 +40,7 @@ open class InvoiceDomain(
                         id = null,
                         customId = null,
                         documentType = null,
+                        relatedId = null,
                         subjectId = SubjectDomain.getSubjectId(claimFin.tenant, subjectService, bearerToken),
                         status = null,
                         due = null,
