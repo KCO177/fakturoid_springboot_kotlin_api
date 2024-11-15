@@ -88,7 +88,7 @@ class creditInvoiceDomainTest{
     }
 
     @Test
-    fun `when 100% credits are spent get 50 percent proforma invoice in CreditSubjectDomain`() {
+    fun `when 100% credits are spent get 100 percent proforma invoice in CreditSubjectDomain`() {
 
         //Given
         val creditQuantity = 4.0

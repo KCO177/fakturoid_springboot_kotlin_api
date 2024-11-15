@@ -40,7 +40,7 @@ class InvoiceService(
 
     private fun createProformaCreditInvoices(): List<InvoiceDomain>? {
         val creditInvoices: List<InvoiceDomain> =
-            invoicesPayload.filter { invoice -> invoice.lines.any { line -> line.name.uppercase().contains("SAVER") } } //TODO && invoice.documentType != "proforma"
+            invoicesPayload.filter { invoice -> invoice.lines.any { line -> line.name.uppercase().contains("SAVER") } && invoice.documentType != "proforma" }
         if (creditInvoices.isEmpty()) {
             return null
         } else {

@@ -74,7 +74,8 @@ class CreditInvoiceDomain (
             when {
                 creditSubject.hundredpercentReached -> {
                     lineName = "100% of credits applied from total ${creditSubject.totalCreditNumber} credits"
-                    return manageCreditOverflow(creditSubject, lineName)
+                    val invoices = manageCreditOverflow(creditSubject, lineName)
+                    return invoices
                 }
 
                 creditSubject.seventyfivepercentReached -> {
@@ -98,9 +99,11 @@ class CreditInvoiceDomain (
             id = null,
             customId = null,
             documentType = "proforma",
+            relatedId = creditSubject.saverInvoiceId,
             subjectId = creditSubject.subjectId,
             status = "open",
             due = 14,
+            note = "DO NOT PAY. PAID FROM YOUR CREDITS.",
             issuedOn = LocalDate.now().toString(),
             taxableFulfillmentDue = LocalDate.now().toString(),
             lines = listOf(
@@ -117,7 +120,7 @@ class CreditInvoiceDomain (
     }
 
 
-    private fun manageCreditOverflow(creditSubject: CreditSubjectDomain, lineName: String): List<InvoiceDomain> {
+    internal fun manageCreditOverflow(creditSubject: CreditSubjectDomain, lineName: String): List<InvoiceDomain> {
         val listOfInoviceToReturn = mutableListOf<InvoiceDomain>()
         listOfInoviceToReturn.add(createCreditInvoice(creditSubject, lineName))
 
