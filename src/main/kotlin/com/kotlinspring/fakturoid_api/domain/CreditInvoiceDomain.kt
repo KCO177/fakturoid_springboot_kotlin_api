@@ -21,7 +21,7 @@ class CreditInvoiceDomain (
     }
 
 
-    fun remainingCreditNumber(creditInvoices: List<InvoiceDomain>, subjects: List<SubjectDomain>, invoiceData: List<ClaimDataDomain> ): List<CreditSubjectDomain> {
+    private fun remainingCreditNumber(creditInvoices: List<InvoiceDomain>, subjects: List<SubjectDomain>, invoiceData: List<ClaimDataDomain> ): List<CreditSubjectDomain> {
         val matchedCreditInvoices: List<InvoiceDomain> = creditInvoices.filter { creditInvoice ->
             creditInvoice.subjectId in subjects.map { it.id!! }
         }
@@ -30,14 +30,13 @@ class CreditInvoiceDomain (
                 invoice.lines.filter { it.name.uppercase().contains("SAVER") }.sumOf { it.quantity.toInt() })
         }
         val creditSubjects = firstDates.map { creditSubject ->
-            val numberOfUploadSinceFirstInvoice =
-                numberOfCvUploadedSinceFirstInvoice(creditSubject, subjects, invoiceData)
+            val numberOfUploadSinceFirstInvoice = numberOfCvUploadedSinceFirstInvoice(creditSubject, subjects, invoiceData)
             CreditSubjectDomain(
                 subjectId = creditSubject.subjectId,
                 remainingNumberOfCredits = creditSubject.creditNumber - numberOfUploadSinceFirstInvoice,
                 totalCreditNumber = creditSubject.creditNumber,
                 fiftypercentReached = creditSubject.creditNumber / 2 <= numberOfUploadSinceFirstInvoice,
-                seventyfivepercentReached = creditSubject.creditNumber * 3 / 4 <= numberOfUploadSinceFirstInvoice,
+                seventyfivepercentReached = creditSubject.creditNumber * 0.75 <= numberOfUploadSinceFirstInvoice,
                 hundredpercentReached = creditSubject.creditNumber <= numberOfUploadSinceFirstInvoice
             )
         }
@@ -59,8 +58,13 @@ class CreditInvoiceDomain (
             val lineName : String
 
             when {
-                creditSubject.hundredpercentReached -> lineName = "100% of credits applied from total ${creditSubject.totalCreditNumber} credits" //TODO send info message to Dj Sales
+                creditSubject.hundredpercentReached
+                    -> lineName = "100% of credits applied from total ${creditSubject.totalCreditNumber} credits"
+                //TODO send info message to create new credit offer
+
+
                 creditSubject.seventyfivepercentReached -> lineName = "75% of credits applied from total ${creditSubject.totalCreditNumber} credits"
+                //TODO send info message to create new credit offer
                 creditSubject.fiftypercentReached -> lineName = "50% of credits applied from total ${creditSubject.totalCreditNumber} credits"
                 else -> lineName = "applied credits from total ${creditSubject.totalCreditNumber} credits"
             }

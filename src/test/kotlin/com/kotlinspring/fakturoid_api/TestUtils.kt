@@ -1,6 +1,5 @@
 package com.kotlinspring.fakturoid_api
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.kotlinspring.fakturoid_api.domain.*
 import java.time.LocalDate
 
@@ -63,9 +62,9 @@ class TestUtils {
 
     }
 
-    fun createCreditDemoInvoice(): List<InvoiceDomain> {
+    fun createCreditDemoInvoice(quantity: Double): List<InvoiceDomain> {
         return listOf( createDemoInvoice(
-            lines = createCreditInvoiceLines(),
+            lines = createCreditInvoiceLines(quantity = quantity),
             subjectId = 23545971
         ))
 
@@ -136,35 +135,24 @@ class TestUtils {
                 companyLawName = "DreamJobs2 s.r.o.",
                 cvQuantityMonth = 1,
                 cvQuantityYear = 9,
-                datesOfCvUpload = listOf(
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                )
+                datesOfCvUpload = List(10) { LocalDate.now() }
+
             )
         )
     }
 
-    fun createClaimDataDemo(
+    fun createClaimData(
         tenant: TenantDomain = createTenant(),
         cvUploadedNumberMonth: Int = 10,
         datesOfCvUploads: List<LocalDate> =
             listOf(LocalDate.now())
-        ): List<ClaimDataDomain> {
-            return listOf(
-                ClaimDataDomain(
+        ): ClaimDataDomain {
+            return ClaimDataDomain(
                 tenant = tenant,
                 cvUploadedNumberMonth = cvUploadedNumberMonth,
                 datesOfCvUploads = datesOfCvUploads
                 )
-            )
+
         }
 
     fun createTenant(
