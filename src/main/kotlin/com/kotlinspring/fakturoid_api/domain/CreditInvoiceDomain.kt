@@ -82,7 +82,6 @@ class CreditInvoiceDomain (
                 creditSubject.seventyfivepercentReached -> {
                     lineName = "75% of credits applied from total ${creditSubject.totalCreditNumber} credits"
                     createCreditInvoice(creditSubject, lineName)
-
                 }
 
                 creditSubject.fiftypercentReached -> {
@@ -192,11 +191,7 @@ class CreditInvoiceDomain (
             currency = "EUR"
         )
     }
-
-
 }
-
-
 
 
 private class CreditSubject(
