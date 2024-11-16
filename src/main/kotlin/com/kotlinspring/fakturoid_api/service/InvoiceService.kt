@@ -29,8 +29,8 @@ class InvoiceService(
     val invoicesPayload = requireNotNull(invoiceController.getInvoices(bearerToken)) { "Invoices could not be fetched from fakturoid" }
 
     fun createInvoices() {
-        val bufferedInvoices: List<InvoiceDomain> = getBufferedInvoices(finClaim, subjects)
-        val creditInvoices: List<InvoiceDomain>? = createProformaCreditInvoices()
+        val bufferedInvoices: List<InvoiceDomain> = BufferedInvoiceDomain(finClaim, subjects).bufferedInvoice
+        val creditInvoices: List<InvoiceDomain>? = createCreditInvoices()
         val invoices = mutableListOf<InvoiceDomain>().apply {
             if (bufferedInvoices.isNotEmpty()) addAll(bufferedInvoices)
             creditInvoices?.let { if (it.isNotEmpty()) addAll(it) }
@@ -38,7 +38,7 @@ class InvoiceService(
         if (invoices.isNotEmpty()) { invoiceController.createInvoices(bearerToken, invoices) }
     }
 
-    private fun createProformaCreditInvoices(): List<InvoiceDomain>? {
+    private fun createCreditInvoices(): List<InvoiceDomain>? {
         val creditInvoices: List<InvoiceDomain> =
             invoicesPayload.filter { invoice -> invoice.lines.any { line -> line.name.uppercase().contains("SAVER") } && invoice.documentType != "proforma" }
         if (creditInvoices.isEmpty()) {

@@ -23,7 +23,7 @@ class SubjectDomain (
 
             return SubjectDomain(
                 id = null,
-                name = tenant.companyLawName,
+                name = requireNotNull( tenant.companyLawName ) { "Tenant ${tenant.companyRegistrationNumber} ${tenant.companyContactEmail} ${tenant.companyLawName} could not be created in Fakturoid" },
                 full_name = tenant.companyContactEmail, //TODO need to check if default values
                 street = null,
                 city = null,

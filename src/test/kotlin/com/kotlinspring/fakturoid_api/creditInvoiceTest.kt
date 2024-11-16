@@ -39,7 +39,7 @@ class creditInvoiceDomainTest {
             CreditInvoiceDomain(
                 creditInvoices = creditInvoicesMockk,
                 subjects = subjectsMockk,
-                finClaim = invoiceDataMockk,
+                finClaimRaw = invoiceDataMockk,
                 invoicesPayload = creditInvoicesMockk)
         //When
         val proformaInvoices = creditInvoiceDomain.proformaInvoices
