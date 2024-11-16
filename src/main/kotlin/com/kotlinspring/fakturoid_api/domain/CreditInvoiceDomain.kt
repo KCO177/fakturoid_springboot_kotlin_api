@@ -14,15 +14,7 @@ class CreditInvoiceDomain (
     private val logger = KotlinLogging.logger {}
     private val proformaInvoicesPayload: List<InvoiceDomain> = invoicesPayload.filter { it.documentType == "proforma" }
     internal val creditSubjects = remainingCreditNumber(creditInvoices, subjects, finClaimRaw)
-    internal val proformaInvoices: List<InvoiceDomain> = manageCreditInvoices(creditSubjects)
-
-    //TODO decide if necesary to filter - don't remember why it was added
-    val proformaInvoicesFiltered = proformaInvoices.filterNot { proformaInvoice ->
-        proformaInvoicesPayload.any { payload ->
-            payload.subjectId == proformaInvoice.subjectId &&
-                    payload.lines.any { line -> proformaInvoice.lines.any { it.name == line.name } }
-        }
-    }
+    internal val creditInvoices: List<InvoiceDomain> = manageCreditInvoices(creditSubjects)
 
     internal fun remainingCreditNumber(
         creditInvoices: List<InvoiceDomain>,

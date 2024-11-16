@@ -44,7 +44,7 @@ class InvoiceService(
         if (creditInvoices.isEmpty()) {
             return null
         } else {
-            return CreditInvoiceDomain(creditInvoices, subjects, finClaimDataRaw, invoicesPayload).proformaInvoicesFiltered
+            return CreditInvoiceDomain(creditInvoices, subjects, finClaimDataRaw, invoicesPayload).creditInvoices
         }
     }
 

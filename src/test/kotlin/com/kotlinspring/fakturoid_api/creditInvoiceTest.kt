@@ -42,7 +42,7 @@ class creditInvoiceDomainTest {
                 finClaimRaw = invoiceDataMockk,
                 invoicesPayload = creditInvoicesMockk)
         //When
-        val proformaInvoices = creditInvoiceDomain.proformaInvoices
+        val proformaInvoices = creditInvoiceDomain.creditInvoices
 
         //Then
         assertEquals(1, invoiceDataMockk.size)
@@ -69,7 +69,7 @@ class creditInvoiceDomainTest {
         val creditInvoiceDomain =
             CreditInvoiceDomain(creditInvoicesMockk, subjectsMockk, invoiceDataMockk, creditInvoicesMockk)
         //When
-        val proformaInvoices = creditInvoiceDomain.proformaInvoices
+        val proformaInvoices = creditInvoiceDomain.creditInvoices
 
         //Then
         assertEquals(1, invoiceDataMockk.size)
@@ -82,7 +82,14 @@ class creditInvoiceDomainTest {
         assertEquals("DO NOT PAY. PAID FROM YOUR CREDITS.", proformaInvoices.first().note)
         assertEquals(123456, proformaInvoices.first().relatedId)
     }
+}
 
+// TODO when 100% credits are spent get 100 percent proforma invoice in CreditSubjectDomain`() {
+// TODO when more then 100% credits are spent and no new credit remaining are invoiced with standard invoice
+// TODO when 100% credits are spent send proforma new credit
+
+
+/*
     @Test
     fun `when 100% credits are spent get 100 percent proforma invoice in CreditSubjectDomain`() {
 
@@ -109,24 +116,12 @@ class creditInvoiceDomainTest {
     }
 }
 
-    //When more then 100% credits are spent and no new credit remaining are invoiced with standard invoice
-    //When 100% credits are spent send proforma new credit
+
+//when 100% credits are spent get 100 percent proforma invoice in CreditSubjectDomain`() {
+//When more then 100% credits are spent and no new credit remaining are invoiced with standard invoice
+// When 100% credits are spent send proforma new credit
 
 
-/*
-    @Test
-    fun `when cv uploads overflow the credit limit and validated proforma invoice for next credit exists continue with the new`() {
 
-        //Given
-        val creditQuantity = 4.0
-        val creditInvoicesMockk = testUtils.createCreditDemoInvoice(quantity = creditQuantity)
-        val subjectsMockk = testUtils.createCreditSubject()
-        val invoiceDataMockk = listOf(testUtils.createClaimData(datesOfCvUploads = List(4) { LocalDate.now() }))
-        val creditInvoiceDomain = CreditInvoiceDomain(creditInvoicesMockk, subjectsMockk, invoiceDataMockk, creditInvoicesMockk)
-        //When
-        val proformaInvoices = creditInvoiceDomain.proformaInvoices
-
-
-    }
 
  */

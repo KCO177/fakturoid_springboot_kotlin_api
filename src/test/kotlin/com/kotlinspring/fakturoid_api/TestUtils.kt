@@ -115,7 +115,7 @@ class TestUtils {
         quantity: Double = 500.0,
         unitName: String = "CV upload",
         unitPrice: Double = 7.0,
-        vatRate: Double = 0.0
+        vatRate: Double = 21.0
     ): LinesDomain {
         return LinesDomain(
             name = name,
