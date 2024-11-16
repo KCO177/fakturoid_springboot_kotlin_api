@@ -1,5 +1,6 @@
 package com.kotlinspring.fakturoid_api.domain
 
+import mu.KotlinLogging
 import java.time.LocalDate
 
 class CreditInvoiceDomain (
@@ -10,7 +11,7 @@ class CreditInvoiceDomain (
 ) {
 
 
-
+    private val logger = KotlinLogging.logger {}
     private val proformaInvoicesPayload: List<InvoiceDomain> = invoicesPayload.filter { it.documentType == "proforma" }
     internal val creditSubjects = remainingCreditNumber(creditInvoices, subjects, finClaim)
     internal val proformaInvoices: List<InvoiceDomain> = manageCreditInvoices(creditSubjects)
@@ -36,7 +37,9 @@ class CreditInvoiceDomain (
                 invoice.subjectId,
                 requireNotNull(invoice.id) { "Credit Saver Invoice id can not be null" },
                 LocalDate.parse(invoice.issuedOn!!),
-                invoice.lines.filter { it.name.uppercase().contains("SAVER") }.sumOf { it.quantity.toInt() })
+                /** here are no proforma savers, were filtered out before this class **/
+                invoice.lines.filter { it.name.uppercase().contains("SAVER") || it.name.uppercase().contains("TRANSFERRED UNITS") }.sumOf { it.quantity.toInt() })
+
         }
 
         val creditSubjects = firstDates.map { creditSubject ->
@@ -138,9 +141,10 @@ class CreditInvoiceDomain (
 
         if (validatedProformaInvoice.isEmpty()) {
             if (validatedProformaInvoice.size > 1) {
-                println("There are more then one valid Proforma invoice found for subject ${creditSubject.subjectId} for next credit the final invoice can not be created")//TODO change to logger.warn {"There are more then one valid Proforma invoice found for subject ${creditSubject.subjectId} for next credit the final invoice can not be created" }}
-                //TODO send offer for next month credit saver proforma invoice
-                //TODO invoice with buffer system
+                logger.warn {"There are more then one valid Proforma invoice found for subject ${creditSubject.subjectId} for next credit the final invoice can not be created" }
+                createOfferProformaInvoice(creditSubject)
+
+                //TODO invoice with buffer system (creditSubject)
                 return listOfInoviceToReturn
             } else {
                 createNewCreditInvoice(creditSubject, validatedProformaInvoice)
@@ -149,6 +153,30 @@ class CreditInvoiceDomain (
             }
         }
     return listOfInoviceToReturn
+    }
+
+    private fun createOfferProformaInvoice(creditSubject: CreditSubjectDomain) : InvoiceDomain {
+        return InvoiceDomain(
+        id = null,
+        customId = null,
+        documentType = "proforma",
+        relatedId = null,
+        subjectId = creditSubject.subjectId,
+        status = "open",
+        due = 14,
+        note = "DO NOT PAY. THIS IS AN OFFER PROFORMA.",
+        issuedOn = LocalDate.now().toString(),
+        taxableFulfillmentDue = LocalDate.now().toString(),
+        lines = listOf(
+            LinesDomain(
+                name = "Offer your next Saver ${creditSubject.totalCreditNumber} CVs / applications should start from the next month",
+                unitName = null,
+                unitPrice = 7.0, //TODO need to check which price to set
+                quantity = creditSubject.totalCreditNumber.toDouble(),
+            )
+        ),
+        currency = "EUR"
+        )
     }
 
     private fun createNewCreditInvoice(creditSubject: CreditSubjectDomain, proformaInvoice: List<InvoiceDomain>): InvoiceDomain {
@@ -181,7 +209,7 @@ class CreditInvoiceDomain (
                 LinesDomain(
                     name = "Transferred units exceeded the previous credit",
                     quantity = creditSubject.remainingNumberOfCredits.toDouble(),
-                    unitName = "CV upload",
+                    unitName = "CV applications",
                     unitPrice = proformaInvoice.first().lines.first {
                         it.name.uppercase().contains("VALIDATED SAVER")
                     }.unitPrice,

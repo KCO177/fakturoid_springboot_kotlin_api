@@ -6,7 +6,7 @@ class LinesDomain(
     val name : String,
     val quantity : Double,
     @JsonProperty("unit_name")
-    val unitName : String,
+    val unitName : String? = "CV",
     @JsonProperty("unit_price")
     val unitPrice : Double? = 7.0,
     @JsonProperty("vat_rate")
