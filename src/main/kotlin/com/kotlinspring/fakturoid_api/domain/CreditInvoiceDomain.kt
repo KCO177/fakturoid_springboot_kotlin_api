@@ -5,15 +5,15 @@ import java.time.LocalDate
 
 class CreditInvoiceDomain (
     creditInvoices: List<InvoiceDomain>,
-    subjects: List<SubjectDomain>,
-    finClaim: List<ClaimDataDomain>,
+    internal val subjects: List<SubjectDomain>,
+    internal val finClaimRaw: List<ClaimDataDomain>,
     invoicesPayload: List<InvoiceDomain>
 ) {
 
 
     private val logger = KotlinLogging.logger {}
     private val proformaInvoicesPayload: List<InvoiceDomain> = invoicesPayload.filter { it.documentType == "proforma" }
-    internal val creditSubjects = remainingCreditNumber(creditInvoices, subjects, finClaim)
+    internal val creditSubjects = remainingCreditNumber(creditInvoices, subjects, finClaimRaw)
     internal val proformaInvoices: List<InvoiceDomain> = manageCreditInvoices(creditSubjects)
 
     //TODO decide if necesary to filter - don't remember why it was added
@@ -109,7 +109,31 @@ class CreditInvoiceDomain (
             note = "DO NOT PAY. PAID FROM YOUR CREDITS.",
             issuedOn = LocalDate.now().toString(),
             taxableFulfillmentDue = LocalDate.now().toString(),
-            lines = listOf(
+            lines = createProformaLines(creditSubject, lineName),
+            currency = "EUR"
+        )
+    }
+
+    private fun createProformaLines(creditSubject: CreditSubjectDomain, lineName: String): List<LinesDomain> {
+        if (creditSubject.hundredpercentReached) {
+            return listOf(
+                LinesDomain(
+                    name = lineName,
+                    quantity = creditSubject.totalCreditNumber.toDouble(),
+                    unitName = "credit",
+                    unitPrice = 0.0,
+                    vatRate = 0.0
+                ),
+                LinesDomain(
+                    name = "CV applications exceeded the credit",
+                    quantity = -creditSubject.remainingNumberOfCredits.toDouble(),
+                    unitName = "CV applications",
+                    unitPrice = 0.0,
+                    vatRate = 0.0
+                )
+            )
+        } else {
+            return listOf(
                 LinesDomain(
                     name = lineName,
                     quantity = creditSubject.remainingNumberOfCredits.toDouble(),
@@ -117,17 +141,17 @@ class CreditInvoiceDomain (
                     unitPrice = 0.0,
                     vatRate = 0.0
                 )
-            ),
-            currency = "EUR"
-        )
+            )
+        }
     }
+
 
 
     internal fun manageCreditOverflow(creditSubject: CreditSubjectDomain, lineName: String): List<InvoiceDomain> {
         val listOfInoviceToReturn = mutableListOf<InvoiceDomain>()
         listOfInoviceToReturn.add(createCreditInvoice(creditSubject, lineName))
 
-        val validatedProformaInvoice = this.proformaInvoicesPayload.map {
+        val validatedProformaInvoice = this.proformaInvoicesPayload.mapNotNull {
             val equalSubjectId = it.subjectId == creditSubject.subjectId
             val containsSaver = it.lines.any { line -> line.name.uppercase().contains("VALIDATED SAVER") }
             val isNotCreditRunOutSaver = creditSubject.saverInvoiceId != it.relatedId
@@ -137,22 +161,62 @@ class CreditInvoiceDomain (
             } else {
                 null
             }
-        }.filterNotNull()
+        }
 
-        if (validatedProformaInvoice.isEmpty()) {
-            if (validatedProformaInvoice.size > 1) {
-                logger.warn {"There are more then one valid Proforma invoice found for subject ${creditSubject.subjectId} for next credit the final invoice can not be created" }
-                createOfferProformaInvoice(creditSubject)
+        when (validatedProformaInvoice.size) {
+            0 -> {
+                val newCreditOfferProforma = createOfferProformaInvoice(creditSubject)
+                listOfInoviceToReturn.add(newCreditOfferProforma)
 
-                //TODO invoice with buffer system (creditSubject)
+                val hundredPercentReachedProforma = proformaInvoicesPayload.first { it.subjectId == creditSubject.subjectId && it.lines.any { line -> line.name.uppercase().contains("100% OF CREDITS APPLIED") } }
+                val reachedMonth = LocalDate.parse(requireNotNull( hundredPercentReachedProforma.issuedOn){"100% proforma for credit ${hundredPercentReachedProforma.id} missing"}).monthValue
+                val finClaimMonth = finClaimRaw.filter { it.cvUploadedNumberMonth > 0 }
+                val tenantFinClaim = finClaimMonth.first { it.tenant.companyRegistrationNumber == subjects.first { subject -> subject.id == creditSubject.subjectId }.CIN }
+                /** IF IT IS THE SAME MONTH AS REACHED 100% CREDITS USE OVERFLOW APPLICATIONS INSTEAD **/
+                val uploadsDates = if (LocalDate.now().month.value == reachedMonth) {
+                    List(-creditSubject.remainingNumberOfCredits) { LocalDate.now() }
+                } else {
+                    tenantFinClaim.datesOfCvUploads
+                }
+
+                val claimDomains = listOf(
+                    ClaimDataDomain(
+                        tenant = TenantDomain(
+                            companyRegistrationNumber = subjects.first { it.id == creditSubject.subjectId }.CIN,
+                            companyContactEmail = null,
+                            companyLawName = null
+                        ),
+                        datesOfCvUploads = uploadsDates,
+                        cvUploadedNumberMonth = uploadsDates.size
+                    )
+                )
+
+                val bufferedInvoices = BufferedInvoiceDomain(
+                    finClaim = claimDomains, //from payload start with c overflows -> filter and update payload,
+                    subjects = subjects.filter { it.id == creditSubject.subjectId }
+                ).bufferedInvoice
+
+                if (bufferedInvoices.isNotEmpty()) {
+                    listOfInoviceToReturn.addAll(bufferedInvoices)
+                }
+
                 return listOfInoviceToReturn
-            } else {
+            }
+
+
+            1 -> {
                 createNewCreditInvoice(creditSubject, validatedProformaInvoice)
                 val newCreditInvoice = createNewCreditInvoice(creditSubject, validatedProformaInvoice)
                 listOfInoviceToReturn.add(newCreditInvoice)
+                return listOfInoviceToReturn
+            }
+
+
+            else -> {
+                logger.warn { "There are more then one valid Proforma invoice found for subject ${creditSubject.subjectId} for next credit the final invoice can not be created" }
+                return listOfInoviceToReturn
             }
         }
-    return listOfInoviceToReturn
     }
 
     private fun createOfferProformaInvoice(creditSubject: CreditSubjectDomain) : InvoiceDomain {
