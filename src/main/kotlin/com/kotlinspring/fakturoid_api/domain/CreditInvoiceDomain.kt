@@ -70,7 +70,7 @@ class CreditInvoiceDomain (
             when {
                 creditSubject.hundredpercentReached -> {
                     lineName = "100% of credits applied from total ${creditSubject.totalCreditNumber} credits"
-                    val invoices = manageCreditOverflow(creditSubject, lineName)
+                    val invoices = manageCreditOverflow(creditSubject, lineName) //TODO separate to domain object
                     return invoices
                 }
 
@@ -102,7 +102,9 @@ class CreditInvoiceDomain (
             issuedOn = LocalDate.now().toString(),
             taxableFulfillmentDue = LocalDate.now().toString(),
             lines = createProformaLines(creditSubject, lineName),
-            currency = "EUR"
+            currency = "EUR",
+            totalWOVat = null,
+            totalWithVat = null
         )
     }
 
@@ -114,14 +116,18 @@ class CreditInvoiceDomain (
                     quantity = creditSubject.totalCreditNumber.toDouble(),
                     unitName = "credit",
                     unitPrice = 0.0,
-                    vatRate = 0.0
+                    vatRate = 0.0,
+                    totalWOVat = null,
+                    totalWithVat = null
                 ),
                 LinesDomain(
                     name = "CV applications exceeded the credit",
                     quantity = -creditSubject.remainingNumberOfCredits.toDouble(),
                     unitName = "CV applications",
                     unitPrice = 0.0,
-                    vatRate = 0.0
+                    vatRate = 0.0,
+                    totalWOVat = null,
+                    totalWithVat = null
                 )
             )
         } else {
@@ -131,7 +137,9 @@ class CreditInvoiceDomain (
                     quantity = creditSubject.remainingNumberOfCredits.toDouble(),
                     unitName = "credit",
                     unitPrice = 0.0,
-                    vatRate = 0.0
+                    vatRate = 0.0,
+                    totalWOVat = null,
+                    totalWithVat = null
                 )
             )
         }
@@ -141,7 +149,8 @@ class CreditInvoiceDomain (
 
     internal fun manageCreditOverflow(creditSubject: CreditSubjectDomain, lineName: String): List<InvoiceDomain> {
         val listOfInoviceToReturn = mutableListOf<InvoiceDomain>()
-        listOfInoviceToReturn.add(createCreditInvoice(creditSubject, lineName))
+        val oneHundredProforma = createCreditInvoice(creditSubject, lineName)
+        listOfInoviceToReturn.add(oneHundredProforma)
 
         val validatedProformaInvoice = this.proformaInvoicesPayload.mapNotNull {
             val equalSubjectId = it.subjectId == creditSubject.subjectId
@@ -156,14 +165,24 @@ class CreditInvoiceDomain (
         }
 
         when (validatedProformaInvoice.size) {
+            /** NO VALIDATED SAVER PROFORMA INVOICE FOUND **/
             0 -> {
                 val newCreditOfferProforma = createOfferProformaInvoice(creditSubject)
                 listOfInoviceToReturn.add(newCreditOfferProforma)
 
-                val hundredPercentReachedProforma = proformaInvoicesPayload.first { it.subjectId == creditSubject.subjectId && it.lines.any { line -> line.name.uppercase().contains("100% OF CREDITS APPLIED") } }
-                val reachedMonth = LocalDate.parse(requireNotNull( hundredPercentReachedProforma.issuedOn){"100% proforma for credit ${hundredPercentReachedProforma.id} missing"}).monthValue
+
+                /** IF THERE IS FIRST CREDIT REACHED NO 100% PROFORMA INVOICE FOUND USE THE NEW 100% PROFORMA **/
+                val hundredPercentReachedProforma = proformaInvoicesPayload.firstOrNull {
+                    it.subjectId == creditSubject.subjectId && it.lines.any {
+                            line -> line.name.uppercase().contains("100% OF CREDITS APPLIED")
+                    }
+                } ?: oneHundredProforma
+
+                val reachedMonth = LocalDate.parse(requireNotNull( hundredPercentReachedProforma.issuedOn){ "100% proforma for credit ${hundredPercentReachedProforma.id} missing" }).monthValue
+
                 val finClaimMonth = finClaimRaw.filter { it.cvUploadedNumberMonth > 0 }
                 val tenantFinClaim = finClaimMonth.first { it.tenant.companyRegistrationNumber == subjects.first { subject -> subject.id == creditSubject.subjectId }.CIN }
+
                 /** IF IT IS THE SAME MONTH AS REACHED 100% CREDITS USE OVERFLOW APPLICATIONS INSTEAD **/
                 val uploadsDates = if (LocalDate.now().month.value == reachedMonth) {
                     List(-creditSubject.remainingNumberOfCredits) { LocalDate.now() }
@@ -229,13 +248,18 @@ class CreditInvoiceDomain (
                 unitName = null,
                 unitPrice = 7.0, //TODO need to check which price to set
                 quantity = creditSubject.totalCreditNumber.toDouble(),
+                totalWOVat = null,
+                totalWithVat = null
             )
         ),
-        currency = "EUR"
+        currency = "EUR",
+            totalWOVat = null,
+            totalWithVat = null
         )
     }
 
     private fun createNewCreditInvoice(creditSubject: CreditSubjectDomain, proformaInvoice: List<InvoiceDomain>): InvoiceDomain {
+
         return InvoiceDomain(
             id = null,
             customId = null,
@@ -260,7 +284,11 @@ class CreditInvoiceDomain (
                     unitPrice = proformaInvoice.first().lines.first {
                         it.name.uppercase().contains("VALIDATED SAVER")
                     }.unitPrice,
-                    vatRate = null
+                    vatRate = proformaInvoice.first().lines.first {
+                        it.name.uppercase().contains("VALIDATED SAVER")
+                    }.vatRate,
+                    totalWOVat = null,
+                    totalWithVat = null
                 ),
                 LinesDomain(
                     name = "Transferred units exceeded the previous credit",
@@ -269,10 +297,14 @@ class CreditInvoiceDomain (
                     unitPrice = proformaInvoice.first().lines.first {
                         it.name.uppercase().contains("VALIDATED SAVER")
                     }.unitPrice,
-                    vatRate = null
+                    vatRate = null,
+                    totalWOVat = null,
+                    totalWithVat = null
                 )
             ),
-            currency = "EUR"
+            currency = "EUR",
+            totalWOVat = null,
+            totalWithVat = null
         )
     }
 }

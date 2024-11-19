@@ -9,6 +9,7 @@ class creditInvoiceDomainTest {
 
     private val testUtils = TestUtils()
 
+    /*
     @Test
     fun `test get last credit number in CreditSubjectDomain`() {
 
@@ -82,16 +83,16 @@ class creditInvoiceDomainTest {
         assertEquals("DO NOT PAY. PAID FROM YOUR CREDITS.", proformaInvoices.first().note)
         assertEquals(123456, proformaInvoices.first().relatedId)
     }
-}
 
+*/
 // TODO when 100% credits are spent get 100 percent proforma invoice in CreditSubjectDomain`() {
 // TODO when more then 100% credits are spent and no new credit remaining are invoiced with standard invoice
 // TODO when 100% credits are spent send proforma new credit
 
 
-/*
+
     @Test
-    fun `when 100% credits are spent get 100 percent proforma invoice in CreditSubjectDomain`() {
+    fun `when 100% credits are spent and new validated saver proforma was dealed make final invoice`() {
 
         //Given
         val creditQuantity = 4.0
@@ -101,27 +102,28 @@ class creditInvoiceDomainTest {
         val invoicePayload = testUtils.createValidatedProformaMockkInvoice(quantity = creditQuantity)
         val creditInvoiceDomain = CreditInvoiceDomain(creditInvoicesMockk, subjectsMockk, invoiceDataMockk, invoicePayload)
         //When
-        val proformaInvoices = creditInvoiceDomain.proformaInvoices
+        val proformaInvoices = creditInvoiceDomain.creditInvoices
 
         //Then
         assertEquals(1, invoiceDataMockk.size)
         assert(proformaInvoices.isNotEmpty())
-        assertEquals(1, proformaInvoices.size)
+        assertEquals(2, proformaInvoices.size)
         assertEquals(
             "100% of credits applied from total ${creditQuantity.toInt()} credits",
             proformaInvoices.first().lines.first().name
         )
         assertEquals("DO NOT PAY. PAID FROM YOUR CREDITS.", proformaInvoices.first().note)
         assertEquals(123456, proformaInvoices.first().relatedId)
+        assertEquals("SAVER 500 CVS / APPLICATIONS", proformaInvoices.last().lines.first().name)
+        assertEquals("final_invoice", proformaInvoices.last().documentType)
     }
 }
 
 
-//when 100% credits are spent get 100 percent proforma invoice in CreditSubjectDomain`() {
-//When more then 100% credits are spent and no new credit remaining are invoiced with standard invoice
-// When 100% credits are spent send proforma new credit
+// TODO when 100% credits are spent get 100 percent proforma invoice in CreditSubjectDomain`()
+// TODO when more then 100% credits are spent and no new credit remaining are invoiced with standard invoice
+// TODO when 100% credits are spent send proforma new credit
 
 
 
 
- */

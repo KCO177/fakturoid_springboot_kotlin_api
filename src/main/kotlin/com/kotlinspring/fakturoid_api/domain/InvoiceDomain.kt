@@ -22,8 +22,8 @@ open class InvoiceDomain(
     val taxableFulfillmentDue: String? = LocalDate.now().toString(),
     val lines: List<LinesDomain>,
     val currency: String? = "EUR",
-    val totalWOVat : Double? = lines.sumOf { it.totalWOVat },
-    val totalWithVat : Double? = lines.sumOf { it.totalWithVat }
+    val totalWOVat : Double?,
+    val totalWithVat : Double?
 )
 {
     companion object {

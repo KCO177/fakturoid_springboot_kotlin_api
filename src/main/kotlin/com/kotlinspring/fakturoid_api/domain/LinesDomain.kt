@@ -12,9 +12,9 @@ class LinesDomain(
     @JsonProperty("vat_rate")
     val vatRate : Double? = 21.0,
     @JsonProperty("total_price_without_vat")
-    val totalWOVat : Double = unitPrice!! * quantity,
+    val totalWOVat : Double?, //= unitPrice!! * quantity,
     @JsonProperty("total_price_with_vat")
-    val totalWithVat : Double = unitPrice!! * vatRate!! / 100
+    val totalWithVat : Double? //= unitPrice * vatRate!! / 100
 
 ) {
     companion object {
@@ -26,7 +26,9 @@ class LinesDomain(
                     quantity = 0.0,//invoice.cvUploadedNumber.toDouble(),
                     unitName = "CV",
                     unitPrice = 7.0,
-                    vatRate = 21.0
+                    vatRate = 21.0,
+                    totalWOVat = null,
+                    totalWithVat = null
                 )
             )
         }

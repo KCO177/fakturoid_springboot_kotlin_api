@@ -52,7 +52,9 @@ class DemoUtils {
             quantity = quantity,
             unitName = unitName,
             unitPrice = unitPrice,
-            vatRate = vatRate
+            vatRate = vatRate,
+            totalWOVat = null,
+            totalWithVat = null
         )
     }
 

@@ -16,7 +16,9 @@ class BufferedInvoiceDomain (
                         quantity = it.value.toDouble(),
                         unitName = "CV upload",
                         unitPrice = 7.0,
-                        vatRate = 21.0
+                        vatRate = 21.0,
+                        totalWOVat = null,
+                        totalWithVat = null
                     )
                 }.toList()
 
@@ -33,7 +35,9 @@ class BufferedInvoiceDomain (
                     issuedOn = LocalDate.now().toString(),
                     taxableFulfillmentDue = LocalDate.now().toString(),
                     lines = lines,
-                    currency = "EUR"
+                    currency = "EUR",
+                    totalWOVat = null,
+                    totalWithVat = null
                 )
             } else {
                 null
