@@ -199,7 +199,7 @@ class CreditInvoiceDomain (
                             companyLawName = null
                         ),
                         datesOfCvUploads = uploadsDates,
-                        cvUploadedNumberMonth = uploadsDates.size // TODO add localeDates
+                        cvUploadedNumberMonth = uploadsDates.size
                     )
                 )
 
