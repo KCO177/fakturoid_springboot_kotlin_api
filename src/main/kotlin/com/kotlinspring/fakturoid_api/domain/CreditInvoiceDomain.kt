@@ -217,13 +217,33 @@ class CreditInvoiceDomain (
 
 
             1 -> {
-                createNewCreditInvoice(creditSubject, validatedProformaInvoice)
+                val previousHundredProforma = proformaInvoicesPayload.firstOrNull {
+                    it.subjectId == creditSubject.subjectId && it.lines.any { line -> line.name.uppercase().contains("100% OF CREDITS APPLIED") }
+                }
+                val hundredPercentReachedProforma = previousHundredProforma ?: oneHundredProforma.also { listOfInoviceToReturn.add(it) }
+                if (previousHundredProforma == null) {
+                    //and buffered invoices adjusted > 0 -> create invoice for the rest of the remaing applications
+                    val newCreditOfferProforma = createOfferProformaInvoice(creditSubject)
+                    listOfInoviceToReturn.add(newCreditOfferProforma)
+                } else {
+                    //get delta between the last 100% proforma and the new saver
+                    //get applications between the last 100% proforma and the new saver
+                    //put it somehow in CumulativeCvsDomain to filter out the reached buffers and get adjusted value
+                }
+
+                // is in the time delta new saver and last 100% proforma
+                // in the delta check if there is any buffer invoice
+                // if there is buffer invoice use the date as the last saver date
+                // if there is no buffer invoice use the date of the last 100% proforma and add the second line of the excced credits
+
+                //TODO some applications between this and previous saver without reaching buffer limit
+                //TODO check claim Data for the month before the proforma invoice and last saver
+                //TODO get the number and apply to the new credit invoice
+
                 val newCreditInvoice = createNewCreditInvoice(creditSubject, validatedProformaInvoice)
-                listOfInoviceToReturn.add(oneHundredProforma)
                 listOfInoviceToReturn.add(newCreditInvoice)
                 return listOfInoviceToReturn
             }
-
 
             else -> {
                 logger.warn { "There are more then one valid Proforma invoice found for subject ${creditSubject.subjectId} for next credit the final invoice can not be created" }
