@@ -1,6 +1,7 @@
 package com.kotlinspring.fakturoid_api
 
 import com.kotlinspring.fakturoid_api.domain.CreditInvoiceDomain
+import com.kotlinspring.fakturoid_api.domain.InvoiceDomain
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.time.LocalDate
 import kotlin.test.Test
@@ -106,9 +107,10 @@ class creditInvoiceDomainTest {
             "100% of credits applied from total ${creditQuantity.toInt()} credits",
             proformaInvoices.first().lines.first().name
         )
+        println(proformaInvoices.first().lines.size)
         assertEquals("DO NOT PAY. PAID FROM YOUR CREDITS.", proformaInvoices.first().note)
         assertEquals(123456, proformaInvoices.first().relatedId)
-        assertEquals("SAVER 500 CVS / APPLICATIONS", proformaInvoices.last().lines.first().name)
+        assertEquals("SAVER ${creditQuantity} CVS / APPLICATIONS", proformaInvoices.last().lines.first().name)
         assertEquals("final_invoice", proformaInvoices.last().documentType)
     }
 
@@ -208,7 +210,7 @@ class creditInvoiceDomainTest {
         val creditInvoicesMockk = testUtils.createCreditMockkInvoice(quantity = creditQuantity)
         val subjectsMockk = testUtils.createCreditSubject()
         val finClaimRawMockk = listOf(testUtils.createClaimData(datesOfCvUploads = applications))
-        val invoicePayload = testUtils.createCreditReached100ProformaMockkInvoice(quantity= creditQuantity, exceeded = remaining)
+        val invoicePayload = testUtils.createCreditReached100ProformaMockkInvoice(quantity= creditQuantity, exceeded = remaining, issuedOn = LocalDate.now().toString())
 
         val creditInvoiceDomain = CreditInvoiceDomain(creditInvoicesMockk, subjectsMockk, finClaimRawMockk, invoicePayload)
 
@@ -235,20 +237,16 @@ class creditInvoiceDomainTest {
     }
 
     @Test
-    fun `when 100% credits are spent and new saver is next month and some applications are made without reached buffer limit `() {
+    fun `when 100% credits are spent and new validate saver was dealed with one month gap and some applications are made without reached buffer limit these remaining cvs are in second line of new saver `() {
 
         val applications = listOf(
-            LocalDate.now().minusMonths(2),
-            LocalDate.now().minusMonths(2),
-            LocalDate.now().minusMonths(2),
-            LocalDate.now().minusMonths(2),
-            //here is the credit limit reached
+            //here is the credit limit reached for old saver
             LocalDate.now().minusMonths(1),
             LocalDate.now().minusMonths(1),
             LocalDate.now().minusMonths(1),
             LocalDate.now().minusMonths(1),
             LocalDate.now().minusMonths(1),
-            //here is finished last month without reached buffer limit
+            //here is finished last month without reached buffer limit and start of the new saver
         )
 
         //Given
@@ -257,7 +255,11 @@ class creditInvoiceDomainTest {
         val creditInvoicesMockk = testUtils.createCreditMockkInvoice(quantity = creditQuantity)
         val subjectsMockk = testUtils.createCreditSubject()
         val finClaimRawMockk = listOf(testUtils.createClaimData(datesOfCvUploads = applications))
-        val invoicePayload = testUtils.createCreditReached100ProformaMockkInvoice(quantity= creditQuantity, exceeded = remaining)
+        val invoicePayload =
+            buildList<InvoiceDomain> {
+                addAll(testUtils.createValidatedProformaMockkInvoice(quantity = creditQuantity))
+                addAll(testUtils.createCreditReached100ProformaMockkInvoice(quantity= creditQuantity, exceeded = remaining, issuedOn = LocalDate.now().minusMonths(2).toString()))
+            }
 
         val creditInvoiceDomain = CreditInvoiceDomain(creditInvoicesMockk, subjectsMockk, finClaimRawMockk, invoicePayload)
 
@@ -268,24 +270,22 @@ class creditInvoiceDomainTest {
         assert(creditInvoice.isNotEmpty())
         assertEquals(1, creditInvoice.size)
 
-        println(creditInvoice[0].lines.first().name)
-        println(creditInvoice[1].lines.first().name)
-
-
 
         //assertEquals("Offer your next Saver 4 CVs / applications should start from the next month", creditInvoice[1].lines.first().name)
-        assertEquals("DO NOT PAY. THIS IS AN OFFER PROFORMA.", creditInvoice[0].note)
-        assertEquals("proforma", creditInvoice[0].documentType)
+        assertEquals("Thank you for your business.", creditInvoice[0].note)
+        assertEquals("final_invoice", creditInvoice[0].documentType)
 
-        assertEquals("CVs upload DreamJobs service", creditInvoice[1].lines.first().name)
-        assertEquals("invoice", creditInvoice[1].documentType)
-        assertEquals(12.0, creditInvoice[1].lines.first().quantity)
-        assertEquals( 7.0, creditInvoice[1].lines.first().unitPrice)
+        assertEquals("SAVER ${creditQuantity} CVS / APPLICATIONS", creditInvoice[0].lines.first().name)
+        println(creditInvoice[0].lines.last().name)
+        println(creditInvoice[0].lines.last().quantity)
+        println(creditInvoice[0].lines.last().unitPrice)
+        assertEquals(2, creditInvoice[0].lines.size)
+        assertEquals(4.0, creditInvoice[0].lines.first().quantity)
+        assertEquals( 7.0, creditInvoice[0].lines.first().unitPrice)
+        assertEquals("Remaining CV applications not reached buffer limit", creditInvoice[0].lines.last().name)
+        assertEquals( 5.0, creditInvoice[0].lines.last().quantity)
+        assertEquals( 7.0, creditInvoice[0].lines.last().unitPrice)
     }
-
-
-
-    //TODO when no validated saver and not reached the limit but new saver is dealed for next month - some uploads remains and has to be invoiced
 
 }
 

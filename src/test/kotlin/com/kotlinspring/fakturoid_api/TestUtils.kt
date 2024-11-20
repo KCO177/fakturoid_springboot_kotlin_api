@@ -82,18 +82,20 @@ class TestUtils {
                 document_type = "proforma",
                 relatedId = null,
                 lines = createCreditInvoiceLines(
-                    name = "Validated Saver 500 CVs / applications",
+                    name = "Validated Saver ${quantity} CVs / applications",
                     quantity = quantity),
+
                 subjectId = 23545971
             ))
 
         }
 
-    fun createCreditReached100ProformaMockkInvoice(quantity: Double, exceeded : Double): List<InvoiceDomain> {
+    fun createCreditReached100ProformaMockkInvoice(quantity: Double, exceeded : Double, issuedOn: String?): List<InvoiceDomain> {
         return listOf(createMockkInvoice(
             id = 123457,
             document_type = "proforma",
             relatedId = null,
+            issuedOn = issuedOn?:LocalDate.now().toString(),
             lines = listOf( LinesDomain(
                 name = "100% of credits applied from total ${quantity} credits",
                 quantity = quantity,

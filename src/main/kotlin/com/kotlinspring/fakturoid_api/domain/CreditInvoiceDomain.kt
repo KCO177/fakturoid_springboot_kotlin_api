@@ -167,7 +167,7 @@ class CreditInvoiceDomain (
             /** NO VALIDATED SAVER PROFORMA INVOICE FOUND **/
             0 -> {
 
-                /** IF THERE IS FIRST CREDIT REACHED NO 100% PROFORMA INVOICE FOUND USE THE NEW 100% PROFORMA **/
+                /** IF THERE IS FIRST CREDIT REACHED AND NO 100% PROFORMA INVOICE FOUND, USE THE NEW 100% PROFORMA **/
                 val previousHundredProforma = proformaInvoicesPayload.firstOrNull {
                     it.subjectId == creditSubject.subjectId &&
                             it.lines.any { line -> line.name.uppercase().contains("100% OF CREDITS APPLIED") }
@@ -220,15 +220,47 @@ class CreditInvoiceDomain (
                 val previousHundredProforma = proformaInvoicesPayload.firstOrNull {
                     it.subjectId == creditSubject.subjectId && it.lines.any { line -> line.name.uppercase().contains("100% OF CREDITS APPLIED") }
                 }
-                val hundredPercentReachedProforma = previousHundredProforma ?: oneHundredProforma.also { listOfInoviceToReturn.add(it) }
+
                 if (previousHundredProforma == null) {
-                    //and buffered invoices adjusted > 0 -> create invoice for the rest of the remaing applications
-                    val newCreditOfferProforma = createOfferProformaInvoice(creditSubject)
-                    listOfInoviceToReturn.add(newCreditOfferProforma)
+                    listOfInoviceToReturn.add(oneHundredProforma)
+
+                    /** if there is switch from buffer system some cvs not reached buffer limit should stay there **/
+                    val tenantCIN = subjects.first { it.id == creditSubject.subjectId }.CIN
+                    val tenantApplication = finClaimRaw.filter { it.tenant.companyRegistrationNumber == tenantCIN }.first().datesOfCvUploads
+                    val numberOfRemainApplication = if (tenantApplication.size > 9) { CumulativeCvsDomain(tenantApplication).adjustedUploads } else {tenantApplication.size}
+
+                    val newCreditInvoice = createNewCreditInvoice(creditSubject, validatedProformaInvoice, numberOfRemainApplication, "Remaining CV applications from not reached buffer limit")
+                    listOfInoviceToReturn.add(newCreditInvoice)
+
                 } else {
-                    //get delta between the last 100% proforma and the new saver
-                    //get applications between the last 100% proforma and the new saver
-                    //put it somehow in CumulativeCvsDomain to filter out the reached buffers and get adjusted value
+
+                    val lastReachedMonth = requireNotNull( previousHundredProforma.issuedOn?.let { LocalDate.parse(it).monthValue + 1 }) { "100% proforma for credit ${previousHundredProforma.id} missing" }
+                    val currentMonth = LocalDate.now().monthValue
+
+                    if (lastReachedMonth == currentMonth) {
+                        /** if there was 100% proforma reached credit in past amd new saver directly, continue to add the overflowed cvs in new saver **/
+                        val newCreditInvoice = createNewDirectCreditInvoice(creditSubject, validatedProformaInvoice)
+                        listOfInoviceToReturn.add(newCreditInvoice)
+                    } else {
+                        /** if there was 100% proforma reached credit in past not directly and some cvs was applied before the new saver **/
+
+                        val tenantCIN = subjects.first { it.id == creditSubject.subjectId }.CIN
+                        val tenantApplication = finClaimRaw.filter {
+                            it.tenant.companyRegistrationNumber == tenantCIN && it.cvUploadedNumberMonth in (lastReachedMonth).until(
+                                currentMonth
+                            )
+                        }.first().datesOfCvUploads
+                        val numberOfRemainApplication = if (tenantApplication.size > 9) {
+                            CumulativeCvsDomain(tenantApplication).adjustedUploads
+                        } else {
+                            tenantApplication.size
+                        }
+
+                        val newCreditInvoice = createNewCreditInvoice(creditSubject, validatedProformaInvoice, numberOfRemainApplication, "Remaining CV applications not reached buffer limit")
+                        listOfInoviceToReturn.add(newCreditInvoice)
+
+                    }
+
                 }
 
                 // is in the time delta new saver and last 100% proforma
@@ -240,8 +272,6 @@ class CreditInvoiceDomain (
                 //TODO check claim Data for the month before the proforma invoice and last saver
                 //TODO get the number and apply to the new credit invoice
 
-                val newCreditInvoice = createNewCreditInvoice(creditSubject, validatedProformaInvoice)
-                listOfInoviceToReturn.add(newCreditInvoice)
                 return listOfInoviceToReturn
             }
 
@@ -250,6 +280,59 @@ class CreditInvoiceDomain (
                 return listOfInoviceToReturn
             }
         }
+    }
+
+    private fun createNewCreditInvoice(
+        creditSubject: CreditSubjectDomain,
+        validatedProformaInvoice: List<InvoiceDomain>,
+        numberOfRemainApplication: Int,
+        secondLineName: String
+    ): InvoiceDomain { return InvoiceDomain(
+            id = null,
+            customId = null,
+            documentType = "final_invoice",
+            relatedId = validatedProformaInvoice.first().id,
+            subjectId = creditSubject.subjectId,
+            status = "open",
+            due = 14,
+            issuedOn = LocalDate.now().toString(),
+            taxableFulfillmentDue = LocalDate.now().toString(),
+            lines = listOf(
+                LinesDomain(
+                    name = validatedProformaInvoice.first().lines.first {
+                        it.name.uppercase().contains("VALIDATED SAVER")
+                    }.name.uppercase().replace("VALIDATED ", ""),
+                    quantity = validatedProformaInvoice.first().lines.first {
+                        it.name.uppercase().contains("VALIDATED SAVER")
+                    }.quantity,
+                    unitName = validatedProformaInvoice.first().lines.first {
+                        it.name.uppercase().contains("VALIDATED SAVER")
+                    }.unitName,
+                    unitPrice = validatedProformaInvoice.first().lines.first {
+                        it.name.uppercase().contains("VALIDATED SAVER")
+                    }.unitPrice,
+                    vatRate = validatedProformaInvoice.first().lines.first {
+                        it.name.uppercase().contains("VALIDATED SAVER")
+                    }.vatRate,
+                    totalWOVat = null,
+                    totalWithVat = null
+                ),
+                LinesDomain(
+                    name = secondLineName,
+                    quantity = numberOfRemainApplication.toDouble(),
+                    unitName = "CV applications",
+                    unitPrice = 7.0,
+                    vatRate = null,
+                    totalWOVat = null,
+                    totalWithVat = null
+                )
+            ),
+            currency = "EUR",
+            totalWOVat = null,
+            totalWithVat = null
+        )
+    }
+
     }
 
     private fun createOfferProformaInvoice(creditSubject: CreditSubjectDomain) : InvoiceDomain {
@@ -280,7 +363,7 @@ class CreditInvoiceDomain (
         )
     }
 
-    private fun createNewCreditInvoice(creditSubject: CreditSubjectDomain, proformaInvoice: List<InvoiceDomain>): InvoiceDomain {
+    private fun createNewDirectCreditInvoice(creditSubject: CreditSubjectDomain, proformaInvoice: List<InvoiceDomain>): InvoiceDomain {
 
         return InvoiceDomain(
             id = null,
@@ -329,7 +412,7 @@ class CreditInvoiceDomain (
             totalWithVat = null
         )
     }
-}
+
 
 
 private class CreditSubject(
