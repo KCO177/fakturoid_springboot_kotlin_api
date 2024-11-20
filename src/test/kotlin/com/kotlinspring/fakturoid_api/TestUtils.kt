@@ -37,13 +37,13 @@ class TestUtils {
         customId: CustomIdDomain = CustomIdDomain("2024-11-001"),
         document_type: String? = "invoice",
         subjectId: Int = 23377698,
-        relatedId : Int? = null,
-        status : String? = "open",
+        relatedId: Int? = null,
+        status: String? = "open",
         due: Int = 14,
-        note : String? = "Thank you for your business.",
+        note: String? = "Thank you for your business.",
         issuedOn: String = LocalDate.now().toString(),
         taxableFulfillmentDue: String = LocalDate.now().toString(),
-        lines: LinesDomain =  createInvoiceLines(),
+        lines: List<LinesDomain> =  createInvoiceLines(),
         currency: String = "EUR",
     ) : InvoiceDomain {
         return InvoiceDomain(
@@ -57,7 +57,7 @@ class TestUtils {
             note = note,
             issuedOn = issuedOn,
             taxableFulfillmentDue = taxableFulfillmentDue,
-            lines = listOf(lines),
+            lines = lines,
             currency = currency,
             totalWOVat = null,
             totalWithVat = null
@@ -71,7 +71,8 @@ class TestUtils {
             lines = createCreditInvoiceLines(quantity = quantity),
             subjectId = 23545971,
             issuedOn = LocalDate.now().minusMonths(2).toString(),
-        ))
+        )
+        )
 
     }
 
@@ -88,9 +89,43 @@ class TestUtils {
 
         }
 
+    fun createCreditReached100ProformaMockkInvoice(quantity: Double, exceeded : Double): List<InvoiceDomain> {
+        return listOf(createMockkInvoice(
+            id = 123457,
+            document_type = "proforma",
+            relatedId = null,
+            lines = listOf( LinesDomain(
+                name = "100% of credits applied from total ${quantity} credits",
+                quantity = quantity,
+                unitName = "credit",
+                unitPrice = 0.0,
+                vatRate = 0.0,
+                totalWOVat = null,
+                totalWithVat = null
+            ),
+                LinesDomain(
+                    name = "CV applications exceeded the credit",
+                    quantity = exceeded,
+                    unitName = "CV applications",
+                    unitPrice = 0.0,
+                    vatRate = 0.0,
+                    totalWOVat = null,
+                    totalWithVat = null
+                )),
+            subjectId = 23545971
+        ))
+
+    }
+
     fun createCreditSubject(): List<SubjectDomain> {
         return listOf(
         createSubject()
+        )
+    }
+
+    fun createCreditSubjectWithBuffer(): List<SubjectDomain> {
+        return listOf(
+            createSubject(id = 123456789),
         )
     }
 
@@ -100,8 +135,8 @@ class TestUtils {
         unitName: String = "hour",
         unitPrice: Double = 100.0,
         vatRate: Double = 21.0
-    ): LinesDomain {
-        return LinesDomain(
+    ): List<LinesDomain> {
+        return listOf<LinesDomain>( LinesDomain(
             name = name,
             quantity = quantity,
             unitName = unitName,
@@ -109,6 +144,7 @@ class TestUtils {
             vatRate = vatRate,
             totalWOVat = null,
             totalWithVat = null
+        )
         )
     }
 
@@ -118,8 +154,8 @@ class TestUtils {
         unitName: String = "CV upload",
         unitPrice: Double = 7.0,
         vatRate: Double = 21.0
-    ): LinesDomain {
-        return LinesDomain(
+    ): List<LinesDomain> {
+        return listOf( LinesDomain(
             name = name,
             quantity = quantity,
             unitName = unitName,
@@ -127,7 +163,7 @@ class TestUtils {
             vatRate = vatRate,
             totalWOVat = null,
             totalWithVat = null
-        )
+        ))
     }
 
     fun dbOutput(): List<DjDbOutput> {

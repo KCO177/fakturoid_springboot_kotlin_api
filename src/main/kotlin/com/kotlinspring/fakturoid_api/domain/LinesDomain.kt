@@ -19,11 +19,11 @@ class LinesDomain(
 ) {
     companion object {
 
-        internal fun createLines(invoice: ClaimDataDomain): List<LinesDomain> {
+          internal fun createLinesFromFinClaim(finClaim: ClaimDataDomain): List<LinesDomain> {
             return listOf(
                 LinesDomain(
                     name = "CVs upload DreamJobs service",
-                    quantity = 0.0,//invoice.cvUploadedNumber.toDouble(),
+                    quantity = finClaim.cvUploadedNumberMonth.toDouble(),
                     unitName = "CV",
                     unitPrice = 7.0,
                     vatRate = 21.0,

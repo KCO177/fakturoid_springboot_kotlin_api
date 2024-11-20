@@ -25,36 +25,3 @@ open class InvoiceDomain(
     val totalWOVat : Double?,
     val totalWithVat : Double?
 )
-{
-    companion object {
-
-        fun getInvoices(
-            claimData: List<ClaimDataDomain>,
-            bearerToken: String,
-            subjectService: SubjectService
-        ): List<InvoiceDomain> {
-            val invoices = mutableListOf<InvoiceDomain>()
-            claimData.forEach {claimFin ->
-                invoices.add(
-                    InvoiceDomain(
-                        id = null,
-                        customId = null,
-                        documentType = null,
-                        relatedId = null,
-                        subjectId = SubjectDomain.getSubjectId(claimFin.tenant, subjectService, bearerToken),
-                        status = null,
-                        due = null,
-                        note = null,
-                        issuedOn = null,
-                        taxableFulfillmentDue = null,
-                        lines = LinesDomain.createLines(claimFin),
-                        currency = null,
-                        totalWOVat = null,
-                        totalWithVat = null,
-                    )
-                )
-            }
-            return invoices
-        }
-    }
-}

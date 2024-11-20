@@ -146,11 +146,8 @@ class CreditInvoiceDomain (
     }
 
 
-
     internal fun manageCreditOverflow(creditSubject: CreditSubjectDomain, lineName: String): List<InvoiceDomain> {
         val listOfInoviceToReturn = mutableListOf<InvoiceDomain>()
-        val oneHundredProforma = createCreditInvoice(creditSubject, lineName)
-        listOfInoviceToReturn.add(oneHundredProforma)
 
         val validatedProformaInvoice = this.proformaInvoicesPayload.mapNotNull {
             val equalSubjectId = it.subjectId == creditSubject.subjectId
@@ -163,20 +160,24 @@ class CreditInvoiceDomain (
                 null
             }
         }
+        val oneHundredProforma = createCreditInvoice(creditSubject, lineName)
+
 
         when (validatedProformaInvoice.size) {
             /** NO VALIDATED SAVER PROFORMA INVOICE FOUND **/
             0 -> {
-                val newCreditOfferProforma = createOfferProformaInvoice(creditSubject)
-                listOfInoviceToReturn.add(newCreditOfferProforma)
-
 
                 /** IF THERE IS FIRST CREDIT REACHED NO 100% PROFORMA INVOICE FOUND USE THE NEW 100% PROFORMA **/
-                val hundredPercentReachedProforma = proformaInvoicesPayload.firstOrNull {
-                    it.subjectId == creditSubject.subjectId && it.lines.any {
-                            line -> line.name.uppercase().contains("100% OF CREDITS APPLIED")
-                    }
-                } ?: oneHundredProforma
+                val previousHundredProforma = proformaInvoicesPayload.firstOrNull {
+                    it.subjectId == creditSubject.subjectId &&
+                            it.lines.any { line -> line.name.uppercase().contains("100% OF CREDITS APPLIED") }
+                }
+                val hundredPercentReachedProforma = previousHundredProforma ?: oneHundredProforma.also {
+                    listOfInoviceToReturn.add(it)
+                }
+
+                val newCreditOfferProforma = createOfferProformaInvoice(creditSubject)
+                listOfInoviceToReturn.add(newCreditOfferProforma)
 
                 val reachedMonth = LocalDate.parse(requireNotNull( hundredPercentReachedProforma.issuedOn){ "100% proforma for credit ${hundredPercentReachedProforma.id} missing" }).monthValue
 
@@ -198,12 +199,12 @@ class CreditInvoiceDomain (
                             companyLawName = null
                         ),
                         datesOfCvUploads = uploadsDates,
-                        cvUploadedNumberMonth = uploadsDates.size
+                        cvUploadedNumberMonth = uploadsDates.size // TODO add localeDates
                     )
                 )
 
                 val bufferedInvoices = BufferedInvoiceDomain(
-                    finClaim = claimDomains, //from payload start with c overflows -> filter and update payload,
+                    finClaim = claimDomains,
                     subjects = subjects.filter { it.id == creditSubject.subjectId }
                 ).bufferedInvoice
 
@@ -218,6 +219,7 @@ class CreditInvoiceDomain (
             1 -> {
                 createNewCreditInvoice(creditSubject, validatedProformaInvoice)
                 val newCreditInvoice = createNewCreditInvoice(creditSubject, validatedProformaInvoice)
+                listOfInoviceToReturn.add(oneHundredProforma)
                 listOfInoviceToReturn.add(newCreditInvoice)
                 return listOfInoviceToReturn
             }
