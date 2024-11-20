@@ -3,9 +3,7 @@ package com.kotlinspring.fakturoid_api.service
 import com.kotlinspring.fakturoid_api.controller.AuthorizationController
 import com.kotlinspring.fakturoid_api.controller.InvoiceController
 import com.kotlinspring.fakturoid_api.demo.DemoUtils
-import com.kotlinspring.fakturoid_api.domain.LinesDomain
 import com.kotlinspring.fakturoid_api.domain.*
-import java.time.LocalDate
 
 class InvoiceService(
     private val subjectService: SubjectService,
@@ -17,16 +15,16 @@ class InvoiceService(
 
     private val bearerToken = requireNotNull(authorizationController.getBearerToken(AuthorizationController().refreshToken, AuthorizationController().authorizationClient)) { "Bearer token for fakturoid could not be created" }
 
-    val finClaimDataRaw: List<ClaimDataDomain> = ClaimDataDomain.getInvoiceData(demoUtils.dbOutput())
-    val finClaim = finClaimDataRaw.filter { it.cvUploadedNumberMonth > 0 }
-    val tenantRegNumbers: List<TenantDomain> = finClaim.map { it.tenant }
-    val subjects: List<SubjectDomain> = tenantRegNumbers.map { tenant ->
+    private val finClaimDataRaw: List<ClaimDataDomain> = ClaimDataDomain.getInvoiceData(demoUtils.dbOutput())
+    private val finClaim = finClaimDataRaw.filter { it.cvUploadedNumberMonth > 0 }
+    private val tenantRegNumbers: List<TenantDomain> = finClaim.map { it.tenant }
+    private val subjects: List<SubjectDomain> = tenantRegNumbers.map { tenant ->
         subjectService.findOrCreateTenant(
             bearerToken, SubjectDomain.mapTenantToSubjectDomain(tenant)
         )
     }
 
-    val invoicesPayload = requireNotNull(invoiceController.getInvoices(bearerToken)) { "Invoices could not be fetched from fakturoid" }
+    private val invoicesPayload = requireNotNull(invoiceController.getInvoices(bearerToken)) { "Invoices could not be fetched from fakturoid" }
 
     fun createInvoices() {
         val bufferedInvoices: List<InvoiceDomain> = BufferedInvoiceDomain(finClaim, subjects).bufferedInvoice
@@ -46,48 +44,6 @@ class InvoiceService(
         } else {
             return CreditInvoiceDomain(creditInvoices, subjects, finClaimDataRaw, invoicesPayload).creditInvoices
         }
-    }
-
-    internal fun getBufferedInvoices(finClaim: List<ClaimDataDomain>, subjects: List<SubjectDomain>): List<InvoiceDomain> {
-        val claimBuffer = finClaim.filter { it.cvUploadedNumberMonth < 10 }
-        val bufferedInvoice =
-            claimBuffer.map { claim ->
-                if (CumulativeCvsDomain(claim.datesOfCvUploads).finalUploads > 0) {
-
-                    val lines = CumulativeCvsDomain(claim.datesOfCvUploads).lastAdjusted.map {
-                        LinesDomain(
-                            name = "Buffered CV uploads ${it.key}",
-                            quantity = it.value.toDouble(),
-                            unitName = "CV upload",
-                            unitPrice = 7.0,
-                            vatRate = 21.0,
-                            totalWOVat = null,
-                            totalWithVat = null
-                        )
-                    }.toList()
-
-                    val subjectId: Int =
-                        requireNotNull(subjects.find { it.CIN == claim.tenant.companyRegistrationNumber }?.id) { "Subject ${claim.tenant.companyRegistrationNumber} could not be found" }
-
-                    InvoiceDomain(
-                        id = null,
-                        customId = null,
-                        documentType = "proforma",
-                        subjectId = subjectId,
-                        status = "open",
-                        due = 14,
-                        issuedOn = LocalDate.now().toString(),
-                        taxableFulfillmentDue = LocalDate.now().toString(),
-                        lines = lines,
-                        currency = "EUR",
-                        totalWOVat = null,
-                        totalWithVat = null
-                    )
-                } else {
-                    null
-                }
-            }
-        return bufferedInvoice.filterNotNull()
     }
 }
 

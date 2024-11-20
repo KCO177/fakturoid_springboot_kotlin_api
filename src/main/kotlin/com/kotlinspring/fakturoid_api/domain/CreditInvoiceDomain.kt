@@ -263,15 +263,6 @@ class CreditInvoiceDomain (
 
                 }
 
-                // is in the time delta new saver and last 100% proforma
-                // in the delta check if there is any buffer invoice
-                // if there is buffer invoice use the date as the last saver date
-                // if there is no buffer invoice use the date of the last 100% proforma and add the second line of the excced credits
-
-                //TODO some applications between this and previous saver without reaching buffer limit
-                //TODO check claim Data for the month before the proforma invoice and last saver
-                //TODO get the number and apply to the new credit invoice
-
                 return listOfInoviceToReturn
             }
 

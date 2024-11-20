@@ -1,7 +1,6 @@
-package com.kotlinspring.fakturoid_api
+package com.kotlinspring.fakturoid_api.domain
 
-import com.kotlinspring.fakturoid_api.domain.CreditInvoiceDomain
-import com.kotlinspring.fakturoid_api.domain.InvoiceDomain
+import com.kotlinspring.fakturoid_api.TestUtils
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.time.LocalDate
 import kotlin.test.Test
