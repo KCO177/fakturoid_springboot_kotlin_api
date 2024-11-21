@@ -63,7 +63,7 @@ class DemoUtils {
             DjDbOutput(
                 companyRegistrationNumber = "123456789",
                 companyContactEmail = "some@email.com",
-                companyLawName = "DreamJobs s.r.o.",
+                companyLawName = "Test tenant 01 s.r.o.",
                 cvQuantityMonth = 10,
                 cvQuantityYear = 10,
                 datesOfCvUpload = listOf(
@@ -82,7 +82,7 @@ class DemoUtils {
             DjDbOutput(
                 companyRegistrationNumber = "234567890",
                 companyContactEmail = "some@email.com",
-                companyLawName = "DreamJobs2 s.r.o.",
+                companyLawName = "Test tenant 02 s.r.o.",
                 cvQuantityMonth = 1,
                 cvQuantityYear = 9,
                 datesOfCvUpload = listOf(

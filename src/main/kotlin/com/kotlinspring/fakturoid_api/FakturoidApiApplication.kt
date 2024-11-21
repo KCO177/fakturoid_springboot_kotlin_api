@@ -18,7 +18,9 @@ fun main(args: Array<String>) {
     println(bearerToken)
 
 
-    //val invoiceService = InvoiceService( SubjectService(SubjectController()), InvoiceController(), AuthorizationController(), )
-    //invoiceService.createInvoices()
+
+
+//    val invoiceService = InvoiceService( SubjectService(SubjectController()), InvoiceController(), AuthorizationController(), )
+//    invoiceService.createInvoices()
 
 }

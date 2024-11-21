@@ -12,7 +12,8 @@ class SubjectService (
 {
     fun findOrCreateTenant(bearerToken: String, subject: SubjectDomain) : SubjectDomain {
         val tenants : List<SubjectDomain> =  subjectController.getSubject(bearerToken)
-        val tenantId = tenants.filter { tenant -> subject.name == tenant.name }.map { it }.firstOrNull()
+        val tenantId = tenants.filter { tenant -> subject.CIN == tenant.CIN }.map { it }.firstOrNull()
+
         if (tenantId != null) {
             return tenantId
         } else {

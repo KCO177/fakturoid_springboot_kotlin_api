@@ -2,6 +2,7 @@ package com.kotlinspring.fakturoid_api.controller
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.kotlinspring.fakturoid_api.domain.SubjectDomain
+import mu.KotlinLogging
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
 import org.springframework.web.reactive.function.client.WebClient
@@ -10,6 +11,7 @@ import org.springframework.web.reactive.function.client.bodyToMono
 @Controller
 class SubjectController {
 
+    private val logger = KotlinLogging.logger {}
 
     val userAgent : String = System.getenv("USER_AGENT")
     val slug : String = System.getenv("SLUG")
@@ -51,6 +53,8 @@ class SubjectController {
             .bodyToMono<String>()
             .block()
 
-        return response?.let { jacksonObjectMapper().readValue(it, SubjectDomain::class.java) }
+        return response?.let {
+            logger.debug("Response: $it")
+            jacksonObjectMapper().readValue(it, SubjectDomain::class.java) }
     }
 }
