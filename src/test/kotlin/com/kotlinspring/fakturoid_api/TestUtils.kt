@@ -20,7 +20,7 @@ class TestUtils {
         return SubjectDomain(
             id = id,
             name = name,
-            full_name = full_name,
+            fullName = full_name,
             street = street,
             city = city,
             zip = zip,

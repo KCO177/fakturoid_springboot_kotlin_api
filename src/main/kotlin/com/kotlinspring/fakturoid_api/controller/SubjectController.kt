@@ -3,9 +3,11 @@ package com.kotlinspring.fakturoid_api.controller
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.kotlinspring.fakturoid_api.domain.SubjectDomain
 import org.springframework.http.MediaType
+import org.springframework.stereotype.Controller
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 
+@Controller
 class SubjectController {
 
 

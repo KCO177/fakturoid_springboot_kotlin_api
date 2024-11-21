@@ -5,7 +5,9 @@ import com.kotlinspring.fakturoid_api.domain.BearerTokenDomain
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import org.springframework.http.MediaType
+import org.springframework.stereotype.Controller
 
+@Controller
 class AuthorizationController {
 
     val refreshToken : String = System.getenv("REFRESH_TOKEN")

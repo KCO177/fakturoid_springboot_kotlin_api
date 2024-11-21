@@ -1,11 +1,13 @@
 package com.kotlinspring.fakturoid_api.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.kotlinspring.fakturoid_api.service.SubjectService
 import java.time.LocalDate
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 open class InvoiceDomain(
     val id: Int? = null,
+    @JsonProperty("custom_id")
     val customId: CustomIdDomain?,
     @JsonProperty("document_type")
     val documentType: String? = "invoice",

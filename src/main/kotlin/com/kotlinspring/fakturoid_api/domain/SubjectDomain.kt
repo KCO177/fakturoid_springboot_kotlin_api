@@ -1,19 +1,24 @@
 package com.kotlinspring.fakturoid_api.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.kotlinspring.fakturoid_api.service.SubjectService
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 class SubjectDomain (
     val id: Int? = null,
+    @JsonProperty("custom_id")
+    val customId: String? = null,
     val name: String,
-    val full_name : String?,
+    @JsonProperty("full_name")
+    val fullName : String?,
     val street: String?,
     val city: String?,
     val zip: String?,
     @JsonProperty("country")
     val countryCode: String?,
     @JsonProperty("registration_no")
-    val CIN : String,
+    val CIN : String?,
     val vat_no: String?, //DIC??
     val variable_symbol: String? //Fixed variable symbol (used for all invoices for this client instead of invoice number)
 ) {
@@ -24,7 +29,7 @@ class SubjectDomain (
             return SubjectDomain(
                 id = null,
                 name = requireNotNull( tenant.companyLawName ) { "Tenant ${tenant.companyRegistrationNumber} ${tenant.companyContactEmail} ${tenant.companyLawName} could not be created in Fakturoid" },
-                full_name = tenant.companyContactEmail, //TODO need to check if default values
+                fullName = tenant.companyContactEmail, //TODO need to check if default values
                 street = null,
                 city = null,
                 zip = null,

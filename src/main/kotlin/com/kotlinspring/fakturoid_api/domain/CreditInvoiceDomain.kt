@@ -57,7 +57,7 @@ class CreditInvoiceDomain (
         invoiceData: List<ClaimDataDomain>
     ): Int {
         val invoiceDate = creditSubject.invoiceDate
-        val tenantRegistrationNumber: String = subjects.first { it.id == creditSubject.subjectId }.CIN
+        val tenantRegistrationNumber: String = requireNotNull( subjects.first { it.id == creditSubject.subjectId }.CIN ) { "Tenant CIN not found" }
         val datesOfCvUpdates: List<LocalDate>? =
             invoiceData.firstOrNull { it.tenant.companyRegistrationNumber == tenantRegistrationNumber }?.datesOfCvUploads
         return datesOfCvUpdates?.count { it.isEqual(invoiceDate) || it.isAfter(invoiceDate) } ?: 0
@@ -194,7 +194,7 @@ class CreditInvoiceDomain (
                 val claimDomains = listOf(
                     ClaimDataDomain(
                         tenant = TenantDomain(
-                            companyRegistrationNumber = subjects.first { it.id == creditSubject.subjectId }.CIN,
+                            companyRegistrationNumber = requireNotNull( subjects.first { it.id == creditSubject.subjectId }.CIN){"Tenant CIN not found"},
                             companyContactEmail = null,
                             companyLawName = null
                         ),

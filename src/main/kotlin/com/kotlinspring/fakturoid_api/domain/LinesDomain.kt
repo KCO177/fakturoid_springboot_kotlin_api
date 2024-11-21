@@ -1,8 +1,11 @@
 package com.kotlinspring.fakturoid_api.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 class LinesDomain(
+    val id: Int? = null,
     val name : String,
     val quantity : Double,
     @JsonProperty("unit_name")

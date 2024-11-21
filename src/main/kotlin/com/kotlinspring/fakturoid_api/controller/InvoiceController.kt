@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import java.time.LocalDate
 
+@Controller
 class InvoiceController {
 
     val userAgent : String = System.getenv("USER_AGENT")
