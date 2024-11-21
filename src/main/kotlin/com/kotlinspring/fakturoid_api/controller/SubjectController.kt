@@ -32,6 +32,7 @@ class SubjectController {
             .bodyToMono<String>()
             .block()
 
+
         val objectMapper = jacksonObjectMapper()
         return objectMapper.readValue(response, objectMapper.typeFactory.constructCollectionType(List::class.java, SubjectDomain::class.java))
     }
@@ -52,6 +53,8 @@ class SubjectController {
             .retrieve()
             .bodyToMono<String>()
             .block()
+
+        logger.info{ "Subject ${subjectDomain.name} ${subjectDomain.registration_no} created" }
 
         return response?.let {
             logger.debug("Response: $it")

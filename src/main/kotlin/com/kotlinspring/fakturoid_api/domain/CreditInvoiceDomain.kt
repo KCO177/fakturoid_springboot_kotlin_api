@@ -57,7 +57,7 @@ class CreditInvoiceDomain (
         invoiceData: List<ClaimDataDomain>
     ): Int {
         val invoiceDate = creditSubject.invoiceDate
-        val tenantRegistrationNumber: String = requireNotNull( subjects.first { it.id == creditSubject.subjectId }.CIN ) { "Tenant CIN not found" }
+        val tenantRegistrationNumber: String = requireNotNull( subjects.first { it.id == creditSubject.subjectId }.registration_no ) { "Tenant CIN not found" }
         val datesOfCvUpdates: List<LocalDate>? =
             invoiceData.firstOrNull { it.tenant.companyRegistrationNumber == tenantRegistrationNumber }?.datesOfCvUploads
         return datesOfCvUpdates?.count { it.isEqual(invoiceDate) || it.isAfter(invoiceDate) } ?: 0
@@ -182,7 +182,7 @@ class CreditInvoiceDomain (
                 val reachedMonth = LocalDate.parse(requireNotNull( hundredPercentReachedProforma.issuedOn){ "100% proforma for credit ${hundredPercentReachedProforma.id} missing" }).monthValue
 
                 val finClaimMonth = finClaimRaw.filter { it.cvUploadedNumberMonth > 0 }
-                val tenantFinClaim = finClaimMonth.first { it.tenant.companyRegistrationNumber == subjects.first { subject -> subject.id == creditSubject.subjectId }.CIN }
+                val tenantFinClaim = finClaimMonth.first { it.tenant.companyRegistrationNumber == subjects.first { subject -> subject.id == creditSubject.subjectId }.registration_no }
 
                 /** IF IT IS THE SAME MONTH AS REACHED 100% CREDITS USE OVERFLOW APPLICATIONS INSTEAD **/
                 val uploadsDates = if (LocalDate.now().month.value == reachedMonth) {
@@ -194,7 +194,7 @@ class CreditInvoiceDomain (
                 val claimDomains = listOf(
                     ClaimDataDomain(
                         tenant = TenantDomain(
-                            companyRegistrationNumber = requireNotNull( subjects.first { it.id == creditSubject.subjectId }.CIN){"Tenant CIN not found"},
+                            companyRegistrationNumber = requireNotNull( subjects.first { it.id == creditSubject.subjectId }.registration_no){"Tenant CIN not found"},
                             companyContactEmail = null,
                             companyLawName = null
                         ),
@@ -225,7 +225,7 @@ class CreditInvoiceDomain (
                     listOfInoviceToReturn.add(oneHundredProforma)
 
                     /** if there is switch from buffer system some cvs not reached buffer limit should stay there **/
-                    val tenantCIN = subjects.first { it.id == creditSubject.subjectId }.CIN
+                    val tenantCIN = subjects.first { it.id == creditSubject.subjectId }.registration_no
                     val tenantApplication = finClaimRaw.filter { it.tenant.companyRegistrationNumber == tenantCIN }.first().datesOfCvUploads
                     val numberOfRemainApplication = if (tenantApplication.size > 9) { CumulativeCvsDomain(tenantApplication).adjustedUploads } else {tenantApplication.size}
 
@@ -244,7 +244,7 @@ class CreditInvoiceDomain (
                     } else {
                         /** if there was 100% proforma reached credit in past not directly and some cvs was applied before the new saver **/
 
-                        val tenantCIN = subjects.first { it.id == creditSubject.subjectId }.CIN
+                        val tenantCIN = subjects.first { it.id == creditSubject.subjectId }.registration_no
                         val tenantApplication = finClaimRaw.filter {
                             it.tenant.companyRegistrationNumber == tenantCIN && it.cvUploadedNumberMonth in (lastReachedMonth).until(
                                 currentMonth

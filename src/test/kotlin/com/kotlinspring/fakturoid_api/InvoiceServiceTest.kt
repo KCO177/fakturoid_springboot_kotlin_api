@@ -32,8 +32,6 @@ class InvoiceServiceTest {
     @Autowired
     lateinit var invoiceService: InvoiceService
 
-    // (subjectServiceMockk, invoiceControllerMockk, authorizationControllerMockk)
-
 
 
     @Test

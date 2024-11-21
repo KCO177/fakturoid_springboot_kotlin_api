@@ -14,13 +14,14 @@ class FakturoidApiApplication
 fun main(args: Array<String>) {
     runApplication<FakturoidApiApplication>(*args)
 
-    val bearerToken = AuthorizationController().getBearerToken(AuthorizationController().refreshToken, AuthorizationController().authorizationClient)
+   /* val bearerToken = AuthorizationController().getBearerToken(AuthorizationController().refreshToken, AuthorizationController().authorizationClient)
     println(bearerToken)
+*/
 
 
 
+    val invoiceService = InvoiceService( SubjectService(), InvoiceController(), AuthorizationController(), )
+    val invoiceDomains = invoiceService.createInvoices()
 
-//    val invoiceService = InvoiceService( SubjectService(SubjectController()), InvoiceController(), AuthorizationController(), )
-//    invoiceService.createInvoices()
-
+    invoiceService.postInvoices(invoiceDomains)
 }

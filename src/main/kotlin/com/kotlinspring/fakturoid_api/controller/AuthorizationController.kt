@@ -10,12 +10,11 @@ import org.springframework.stereotype.Controller
 @Controller
 class AuthorizationController {
 
-    val refreshToken : String = System.getenv("REFRESH_TOKEN")
-    val authorizationClient : String = System.getenv("AUTHORIZATION_CLIENT")
-    val userAgent : String = System.getenv("USER_AGENT")
+    internal fun getBearerToken(): String? {
+        val refreshToken : String = System.getenv("REFRESH_TOKEN")
+        val authorizationClient : String = System.getenv("AUTHORIZATION_CLIENT")
+        val userAgent : String = System.getenv("USER_AGENT")
 
-
-    fun getBearerToken(refreshToken: String, authorizationClient: String): String? {
         val url = "https://app.fakturoid.cz/api/v3/oauth/token"
 
         val webClient = WebClient.builder()

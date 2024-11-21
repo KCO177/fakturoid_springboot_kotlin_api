@@ -65,26 +65,13 @@ class DemoUtils {
                 companyContactEmail = "some@email.com",
                 companyLawName = "Test tenant 01 s.r.o.",
                 cvQuantityMonth = 10,
-                cvQuantityYear = 10,
-                datesOfCvUpload = listOf(
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                )
+                datesOfCvUpload = List(15) { LocalDate.now() }
             ),
             DjDbOutput(
                 companyRegistrationNumber = "234567890",
                 companyContactEmail = "some@email.com",
                 companyLawName = "Test tenant 02 s.r.o.",
-                cvQuantityMonth = 1,
-                cvQuantityYear = 9,
+                cvQuantityMonth = 10,
                 datesOfCvUpload = listOf(
                     LocalDate.now(),
                     LocalDate.now(),

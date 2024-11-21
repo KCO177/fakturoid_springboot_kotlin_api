@@ -2,22 +2,28 @@ package com.kotlinspring.fakturoid_api.service
 
 import com.kotlinspring.fakturoid_api.controller.SubjectController
 import com.kotlinspring.fakturoid_api.domain.SubjectDomain
+import com.kotlinspring.fakturoid_api.domain.TenantDomain
 import org.springframework.stereotype.Service
 
 @Service
-class SubjectService (
-    private val subjectController: SubjectController
-)
+class SubjectService {
+    fun findOrCreateTenant(bearerToken: String, tenants: List<TenantDomain>) : List<SubjectDomain> {
+        val subjects : List<SubjectDomain> =  SubjectController().getSubject(bearerToken)
 
-{
-    fun findOrCreateTenant(bearerToken: String, subject: SubjectDomain) : SubjectDomain {
-        val tenants : List<SubjectDomain> =  subjectController.getSubject(bearerToken)
-        val tenantId = tenants.filter { tenant -> subject.CIN == tenant.CIN }.map { it }.firstOrNull()
 
-        if (tenantId != null) {
-            return tenantId
-        } else {
-            return requireNotNull( subjectController.createSubject(bearerToken, subject) ) { "Subject ${subject.id} ${subject.CIN} could not be created" }
+        val existingSubjects: List<SubjectDomain> = tenants.mapNotNull { tenant ->
+            subjects.find { subject -> subject.registration_no == tenant.companyRegistrationNumber }
         }
+
+        val newSubjects: List<SubjectDomain> = tenants.filter { tenant ->
+            existingSubjects.none { subject -> subject.registration_no == tenant.companyRegistrationNumber }
+        }.map { tenant ->
+            requireNotNull(SubjectController().createSubject(bearerToken, SubjectDomain.mapTenantToSubjectDomain(tenant))) {
+                "Subject for tenant ${tenant.companyRegistrationNumber} could not be created"
+            }
+        }
+
+        return existingSubjects + newSubjects
+
     }
 }

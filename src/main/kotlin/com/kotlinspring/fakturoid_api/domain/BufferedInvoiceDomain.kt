@@ -7,15 +7,13 @@ class BufferedInvoiceDomain (
     subjects: List<SubjectDomain>
 )
 {
-
-
     private val directInvoiceBuffer = finClaim.filter { it.cvUploadedNumberMonth >= 10 }
     private val directInvoice = directInvoiceBuffer.map { claim ->
         InvoiceDomain(
             id = null,
             customId = null,
             documentType = "invoice",
-            subjectId = requireNotNull(subjects.find { it.CIN == claim.tenant.companyRegistrationNumber }?.id) { "Subject ${claim.tenant.companyRegistrationNumber} could not be found" },
+            subjectId = requireNotNull(subjects.find { it.registration_no == claim.tenant.companyRegistrationNumber }?.id) { "Subject ${claim.tenant.companyRegistrationNumber} could not be found" },
             status = "open",
             due = 14,
             issuedOn = LocalDate.now().toString(),
@@ -44,7 +42,7 @@ class BufferedInvoiceDomain (
             }.toList()
 
             val subjectId: Int =
-                requireNotNull(subjects.find { it.CIN == claim.tenant.companyRegistrationNumber }?.id) { "Subject ${claim.tenant.companyRegistrationNumber} could not be found" }
+                requireNotNull(subjects.find { it.registration_no == claim.tenant.companyRegistrationNumber }?.id) { "Subject ${claim.tenant.companyRegistrationNumber} could not be found" }
 
             InvoiceDomain(
                 id = null,

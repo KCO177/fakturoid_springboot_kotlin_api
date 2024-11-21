@@ -2,7 +2,6 @@ package com.kotlinspring.fakturoid_api.controller
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.kotlinspring.fakturoid_api.domain.InvoiceDomain
-import com.kotlinspring.fakturoid_api.domain.SubjectDomain
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
 import org.springframework.web.reactive.function.client.WebClient
@@ -12,10 +11,10 @@ import java.time.LocalDate
 @Controller
 class InvoiceController {
 
-    val userAgent : String = System.getenv("USER_AGENT")
-    val slug : String = System.getenv("SLUG")
 
     fun getInvoices(bearerToken: String): List<InvoiceDomain>? {
+        val userAgent : String = System.getenv("USER_AGENT")
+        val slug : String = System.getenv("SLUG")
 
         val url = "https://app.fakturoid.cz/api/v3/accounts/${slug}/invoices.json"
 
@@ -41,6 +40,8 @@ class InvoiceController {
     }
 
     fun getInvoicesBySubject(bearerToken: String, subjectId : Int): List<InvoiceDomain>? {
+        val userAgent : String = System.getenv("USER_AGENT")
+        val slug : String = System.getenv("SLUG")
 
         val url = "https://app.fakturoid.cz/api/v3/accounts/${slug}/invoices.json"
 
@@ -69,11 +70,14 @@ class InvoiceController {
 
 
     fun createInvoices(bearerToken: String, invoiceDomains: List<InvoiceDomain>) {
+        val userAgent : String = System.getenv("USER_AGENT")
+        val slug : String = System.getenv("SLUG")
+
         val url = "https://app.fakturoid.cz/api/v3/accounts/${slug}/invoices.json"
 
         WebClient.builder()
             .baseUrl(url)
-            .defaultHeader("User-Agent", "testovacíAplikace (koscelnik.p@gmail.com)")
+            .defaultHeader("User-Agent", userAgent)
             .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
             .defaultHeader("Accept", MediaType.APPLICATION_JSON_VALUE)
             .defaultHeader("Authorization", bearerToken)

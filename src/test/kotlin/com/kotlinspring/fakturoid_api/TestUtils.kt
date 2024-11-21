@@ -8,26 +8,14 @@ class TestUtils {
     fun createSubject(
         id: Int? = 23545971,
         name: String = "Test Company",
-        full_name: String? = "Test Company Full Name",
-        street: String? = "123 Test St",
-        city: String? = "Test City",
-        zip: String? = "12345",
-        countryCode: String? = "CZ",
+        email : String? = "email@test.com",
         CIN: String = "123456789",
-        vat_no: String? = "123456789",
-        variable_symbol: String? = "123456"
     ): SubjectDomain {
         return SubjectDomain(
             id = id,
             name = name,
-            fullName = full_name,
-            street = street,
-            city = city,
-            zip = zip,
-            countryCode = countryCode,
-            CIN = CIN,
-            vat_no = vat_no,
-            variable_symbol = variable_symbol
+            registration_no = CIN,
+            email = email,
         )
     }
 
@@ -175,28 +163,14 @@ class TestUtils {
                 companyContactEmail = "some@email.com",
                 companyLawName = "DreamJobs s.r.o.",
                 cvQuantityMonth = 10,
-                cvQuantityYear = 10,
-                datesOfCvUpload = listOf(
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                )
+                datesOfCvUpload = List(10) { LocalDate.now() }
             ),
             DjDbOutput(
                 companyRegistrationNumber = "234567890",
                 companyContactEmail = "some@email.com",
                 companyLawName = "DreamJobs2 s.r.o.",
-                cvQuantityMonth = 1,
-                cvQuantityYear = 9,
+                cvQuantityMonth = 10,
                 datesOfCvUpload = List(10) { LocalDate.now() }
-
             )
         )
     }

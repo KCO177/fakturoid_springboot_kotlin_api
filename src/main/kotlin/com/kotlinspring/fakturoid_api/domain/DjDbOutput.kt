@@ -7,7 +7,6 @@ class DjDbOutput(
     val companyContactEmail: String,
     val companyLawName: String,
     val cvQuantityMonth: Int,
-    val cvQuantityYear: Int,
     val datesOfCvUpload: List<LocalDate>
 )
 
