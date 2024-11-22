@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service
 @Service
 class SubjectService {
     fun findOrCreateTenant(bearerToken: String, tenants: List<TenantDomain>) : List<SubjectDomain> {
+        println(bearerToken)
         val subjects : List<SubjectDomain> =  SubjectController().getSubject(bearerToken)
-
 
         val existingSubjects: List<SubjectDomain> = tenants.mapNotNull { tenant ->
             subjects.find { subject -> subject.registration_no == tenant.companyRegistrationNumber }

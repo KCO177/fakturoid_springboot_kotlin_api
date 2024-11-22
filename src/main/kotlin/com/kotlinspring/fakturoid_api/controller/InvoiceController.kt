@@ -5,6 +5,7 @@ import com.kotlinspring.fakturoid_api.domain.InvoiceDomain
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.bodyToFlux
 import org.springframework.web.reactive.function.client.bodyToMono
 import java.time.LocalDate
 
@@ -13,6 +14,7 @@ class InvoiceController {
 
 
     fun getInvoices(bearerToken: String): List<InvoiceDomain>? {
+        println(bearerToken)
         val userAgent : String = System.getenv("USER_AGENT")
         val slug : String = System.getenv("SLUG")
 
@@ -70,23 +72,26 @@ class InvoiceController {
 
 
     fun createInvoices(bearerToken: String, invoiceDomains: List<InvoiceDomain>) {
+        println(bearerToken)
+        //TODO it is not possible to send the invoices in collections
         val userAgent : String = System.getenv("USER_AGENT")
         val slug : String = System.getenv("SLUG")
 
         val url = "https://app.fakturoid.cz/api/v3/accounts/${slug}/invoices.json"
-
-        WebClient.builder()
-            .baseUrl(url)
-            .defaultHeader("User-Agent", userAgent)
-            .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-            .defaultHeader("Accept", MediaType.APPLICATION_JSON_VALUE)
-            .defaultHeader("Authorization", bearerToken)
-            .build()
-            .post()
-            .bodyValue(jacksonObjectMapper().typeFactory.constructCollectionType(List::class.java, InvoiceDomain::class.java))
-            .retrieve()
-            .bodyToMono<String>()
-            .block()
+        invoiceDomains.forEach { invoiceDomain ->
+            WebClient.builder()
+                .baseUrl(url)
+                .defaultHeader("User-Agent", userAgent)
+                .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader("Accept", MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader("Authorization", bearerToken)
+                .build()
+                .post()
+                .bodyValue(jacksonObjectMapper().writeValueAsString(invoiceDomain).also { println(it) })
+                .retrieve()
+                .bodyToMono<String>()
+                .block()
+            }
     }
 }
 

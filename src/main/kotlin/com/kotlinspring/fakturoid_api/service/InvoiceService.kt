@@ -20,8 +20,7 @@ class InvoiceService(
 
     private val logger = KotlinLogging.logger {}
 
-    private val bearerToken: String
-        get() = requireNotNull(authorizationController.getBearerToken()) { "Bearer token for fakturoid could not be created" }
+    private val bearerToken: String = requireNotNull(authorizationController.getBearerToken()) { "Bearer token for fakturoid could not be created" }
 
     @Transactional
     fun createInvoices(): List<InvoiceDomain> {
