@@ -65,28 +65,23 @@ class CreditInvoiceDomain (
 
     //TODO send info message to create new credit offer
     fun manageCreditInvoices(creditSubjects: List<CreditSubjectDomain>): List<InvoiceDomain> {
-        val creditInvoices: List<InvoiceDomain> = creditSubjects.map { creditSubject ->
-            val lineName: String
+        return creditSubjects.flatMap { creditSubject ->
             when {
                 creditSubject.hundredpercentReached -> {
-                    lineName = "100% of credits applied from total ${creditSubject.totalCreditNumber} credits"
-                    val invoices = manageCreditOverflow(creditSubject, lineName) //TODO separate to domain object
-                    return invoices
+                    val lineName = "100% of credits applied from total ${creditSubject.totalCreditNumber} credits"
+                    manageCreditOverflow(creditSubject, lineName)
                 }
-
                 creditSubject.seventyfivepercentReached -> {
-                    lineName = "75% of credits applied from total ${creditSubject.totalCreditNumber} credits"
-                    createCreditInvoice(creditSubject, lineName)
+                    //TODO send notification "75% of credits applied from total ${creditSubject.totalCreditNumber} credits"
+                    emptyList()
                 }
-
                 creditSubject.fiftypercentReached -> {
-                    lineName = "50% of credits applied from total ${creditSubject.totalCreditNumber} credits"
-                    createCreditInvoice(creditSubject, lineName)
+                    //TODO send notification "50% of credits applied from total ${creditSubject.totalCreditNumber} credits"
+                    emptyList()
                 }
-                else -> null
+                else -> emptyList()
             }
-        }.filterNotNull()
-        return creditInvoices
+        }
     }
 
     private fun createCreditInvoice(creditSubject: CreditSubjectDomain, lineName: String): InvoiceDomain {

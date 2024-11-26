@@ -43,19 +43,11 @@ class creditInvoiceDomainTest {
                 finClaimRaw = invoiceDataMockk,
                 invoicesPayload = creditInvoicesMockk)
         //When
-        val proformaInvoices = creditInvoiceDomain.creditInvoices
+        val invoices = creditInvoiceDomain.creditInvoices
 
         //Then
         assertEquals(1, invoiceDataMockk.size)
-        assert(proformaInvoices.isNotEmpty())
-        assertEquals(1, proformaInvoices.size)
-        assertEquals(
-            "50% of credits applied from total ${creditQuantity.toInt()} credits",
-            proformaInvoices.first().lines.first().name
-        )
-        assertEquals("DO NOT PAY. PAID FROM YOUR CREDITS.", proformaInvoices.first().note)
-        assertEquals(123456, proformaInvoices.first().relatedId)
-
+        assert(invoices.isEmpty())
     }
 
 
@@ -70,18 +62,11 @@ class creditInvoiceDomainTest {
         val creditInvoiceDomain =
             CreditInvoiceDomain(creditInvoicesMockk, subjectsMockk, invoiceDataMockk, creditInvoicesMockk)
         //When
-        val proformaInvoices = creditInvoiceDomain.creditInvoices
+        val invoices = creditInvoiceDomain.creditInvoices
 
         //Then
         assertEquals(1, invoiceDataMockk.size)
-        assert(proformaInvoices.isNotEmpty())
-        assertEquals(1, proformaInvoices.size)
-        assertEquals(
-            "75% of credits applied from total ${creditQuantity.toInt()} credits",
-            proformaInvoices.first().lines.first().name
-        )
-        assertEquals("DO NOT PAY. PAID FROM YOUR CREDITS.", proformaInvoices.first().note)
-        assertEquals(123456, proformaInvoices.first().relatedId)
+        assert(invoices.isEmpty())
     }
 
 
