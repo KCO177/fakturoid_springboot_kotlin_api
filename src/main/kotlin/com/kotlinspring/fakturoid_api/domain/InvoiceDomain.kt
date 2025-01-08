@@ -25,5 +25,5 @@ open class InvoiceDomain(
     val lines: List<LinesDomain>,
     val currency: String? = "EUR",
     val totalWOVat : Double?,
-    val totalWithVat : Double?
+    val totalWithVat : Double?,
 )

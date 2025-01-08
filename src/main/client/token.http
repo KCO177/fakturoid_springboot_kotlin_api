@@ -1,13 +1,13 @@
 ### POST request to get acces token regarding authorization code
 POST https://app.fakturoid.cz/api/v3/oauth/token
-User-Agent: DreamJobsStage (petr.k@dream.jobs)
+User-Agent: {user-agent}
 Content-Type: application/json
 Accept: application/json
-Authorization: Basic NzZmODUyZGE2YTlmMjE1YzYyNGZiNTZjMWZlYTI0ZTdkYWM1OWMxYzo5ODNjZmMzOGI4YzA1MzE0M2QxYzg3NmRiNmJhOGI3NWJkOTFiYzcz
+Authorization: Basic
 
 {
   "grant_type": "authorization_code",
-  "code": "1cde4d440f013cdad249bc87dd5df2d51adbda50502bfade363b01ac20388a37cd99992aa3ded9a6",
+  "code": ,
   "redirect_uri": "https://www.localhost:8080/"
 }
 
@@ -17,11 +17,11 @@ POST https://app.fakturoid.cz/api/v3/oauth/token
 User-Agent:  {user-agent}
 Content-Type: application/json
 Accept: application/json
-Authorization: Basic NzZmODUyZGE2YTlmMjE1YzYyNGZiNTZjMWZlYTI0ZTdkYWM1OWMxYzo5ODNjZmMzOGI4YzA1MzE0M2QxYzg3NmRiNmJhOGI3NWJkOTFiYzcz
+Authorization: Basic
 
 {
   "grant_type": "refresh_token",
-  "refresh_token": "e95127b3717ff756c06efdfa8b9fd6cbba029421a067946bd01ba49ac23785f2b0e810263aea3265"
+  "refresh_token": ""
 }
 
 
@@ -34,7 +34,7 @@ Authorization: {basic-http-auth}
 
 {
   "grant_type": "refresh_token",
-  "refresh_token": "32455924fe6c24eec7d67791d911c4c66b78e2ca90e49dab73358daa26bb061cf060b2107086f183"
+  "refresh_token": ""
 }
 
 ###
