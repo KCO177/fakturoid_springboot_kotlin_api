@@ -3,6 +3,7 @@ package com.kotlinspring.fakturoid_api.demo
 import com.kotlinspring.fakturoid_api.domain.CustomIdDomain
 import com.kotlinspring.fakturoid_api.domain.DjDbOutput
 import com.kotlinspring.fakturoid_api.domain.InvoiceDomain
+import com.kotlinspring.fakturoid_api.domain.LinesDomain
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -24,15 +25,15 @@ class DemoUtils {
         return InvoiceDomain(
             id = null,
             customId = customId,
-            subject_id = subjectId,
+            documentType = document_type,
+            subjectId = subjectId,
+            status = status,
             due = due,
-            issued_on = issuedOn,
-            taxable_fulfillment_due = taxableFulfillmentDue,
+            note = note,
+            issuedOn = issuedOn,
+            taxableFulfillmentDue = taxableFulfillmentDue,
             lines = listOf(lines),
             currency = currency,
-            document_type = document_type,
-            status = status,
-            note = note,
             totalWOVat = null,
             totalWithVat = null
         )
@@ -51,7 +52,9 @@ class DemoUtils {
             quantity = quantity,
             unitName = unitName,
             unitPrice = unitPrice,
-            vatRate = vatRate
+            vatRate = vatRate,
+            totalWOVat = null,
+            totalWithVat = null
         )
     }
 
@@ -60,28 +63,15 @@ class DemoUtils {
             DjDbOutput(
                 companyRegistrationNumber = "123456789",
                 companyContactEmail = "some@email.com",
-                companyLawName = "DreamJobs s.r.o.",
+                companyLawName = "Test tenant 01 s.r.o.",
                 cvQuantityMonth = 10,
-                cvQuantityYear = 10,
-                datesOfCvUpload = listOf(
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    LocalDate.now(),
-                )
+                datesOfCvUpload = List(15) { LocalDate.now() }
             ),
             DjDbOutput(
                 companyRegistrationNumber = "234567890",
                 companyContactEmail = "some@email.com",
-                companyLawName = "DreamJobs2 s.r.o.",
-                cvQuantityMonth = 1,
-                cvQuantityYear = 9,
+                companyLawName = "Test tenant 02 s.r.o.",
+                cvQuantityMonth = 10,
                 datesOfCvUpload = listOf(
                     LocalDate.now(),
                     LocalDate.now(),

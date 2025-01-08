@@ -1,56 +1,29 @@
 package com.kotlinspring.fakturoid_api.domain
 
-import com.kotlinspring.fakturoid_api.demo.LinesDomain
-import com.kotlinspring.fakturoid_api.service.SubjectService
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.LocalDate
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 open class InvoiceDomain(
     val id: Int? = null,
+    @JsonProperty("custom_id")
     val customId: CustomIdDomain?,
-    val document_type: String? = "invoice",
-    val subject_id: Int,
+    @JsonProperty("document_type")
+    val documentType: String? = "invoice",
+    @JsonProperty("related_id")
+    val relatedId : Int? = null,
+    @JsonProperty("subject_id")
+    val subjectId: Int,
     val status : String?,
     val due: Int? = 14,
     val note: String? = "Thank you for your business.",
-    val issued_on: String? = LocalDate.now().toString(),
-    val taxable_fulfillment_due: String? = LocalDate.now().toString(),
+    @JsonProperty("issued_on")
+    val issuedOn: String? = LocalDate.now().toString(),
+    @JsonProperty("taxable_fulfillment_due")
+    val taxableFulfillmentDue: String? = LocalDate.now().toString(),
     val lines: List<LinesDomain>,
     val currency: String? = "EUR",
-    val totalWOVat : Double? = lines.sumOf { it.totalWOVat },
-    val totalWithVat : Double? = lines.sumOf { it.totalWithVat }
+    val totalWOVat : Double?,
+    val totalWithVat : Double?
 )
-{
-    companion object {
-
-        fun getInvoices(
-            invoiceData: List<ClaimDataDomain>,
-            newCustomIdDomain: CustomIdDomain,
-            bearerToken: String,
-            subjectService: SubjectService
-        ): List<InvoiceDomain> {
-            val invoices = mutableListOf<InvoiceDomain>()
-            invoiceData.forEachIndexed { index, invoice ->
-                val customIdNumber = index + 1
-                val customId = CustomIdDomain("${newCustomIdDomain.year}-${newCustomIdDomain.month}-$customIdNumber")
-                invoices.add(
-                    InvoiceDomain(
-                        id = null,
-                        customId = customId,
-                        document_type = null,
-                        subject_id = SubjectDomain.getSubjectId(invoice.tenant, subjectService, bearerToken),
-                        status = null,
-                        due = null,
-                        note = null,
-                        issued_on = null,
-                        taxable_fulfillment_due = null,
-                        lines = LinesDomain.createLines(invoice),
-                        currency = null,
-                        totalWOVat = null,
-                        totalWithVat = null,
-                    )
-                )
-            }
-            return invoices
-        }
-    }
-}
